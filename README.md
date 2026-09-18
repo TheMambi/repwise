@@ -21,7 +21,7 @@ React 19, TypeScript, Vite 6, Tailwind CSS 3, lucide-react. Deployed as a static
 ## Run it locally
 
 ```bash
-git clone https://github.com/TheMambi/HomeGymPlan.git repwise
+git clone https://github.com/TheMambi/repwise.git
 cd repwise
 npm install        # also installs the pre-commit secret scanner
 npm run dev        # http://localhost:5173
