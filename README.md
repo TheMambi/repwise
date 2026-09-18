@@ -2,7 +2,7 @@
 
 Repwise builds a weekly home workout plan around what you actually have: your equipment, the minutes you can spare, the muscles you want to focus on, and whether you're training for growth or definition. It mixes calisthenics and weight work, sizes sets and reps to your time and goal, and lets you tap any exercise for form notes.
 
-**Live:** https://home-gym-plan.vercel.app
+**Live:** https://repwiseapp.vercel.app
 
 Everything runs in your browser. There is no backend, no account, no analytics, and nothing is stored or sent anywhere.
 
