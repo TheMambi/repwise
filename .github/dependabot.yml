@@ -7,6 +7,11 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: development
+        update-types: [minor, patch]
+    ignore:
+      # Major bumps (Tailwind 4, ESLint 10, Vite 7...) need deliberate migration; do them by hand.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     open-pull-requests-limit: 5
   - package-ecosystem: github-actions
     directory: /
