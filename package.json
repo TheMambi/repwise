@@ -5,7 +5,7 @@
   "description": "Repwise — a weekly home workout planner built around your equipment, time, focus, and goal.",
   "license": "MIT",
   "type": "module",
-  "homepage": "https://home-gym-plan.vercel.app",
+  "homepage": "https://repwiseapp.vercel.app",
   "repository": {
     "type": "git",
     "url": "https://github.com/TheMambi/repwise.git"
