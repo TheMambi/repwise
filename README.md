@@ -14,6 +14,10 @@ Everything runs in your browser. There is no backend, no account, no analytics, 
 - Exercise detail cards with execution notes.
 - Dark glass UI with an animated flow-field background.
 
+## Figma
+
+https://www.figma.com/design/jAm3pPTMjnJMJoY95sDB3I
+
 ## Stack
 
 React 19, TypeScript, Vite 6, Tailwind CSS 3, lucide-react. Deployed as a static site on Vercel.
