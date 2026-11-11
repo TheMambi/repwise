@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import NeuralBackground from '@/components/ui/flow-field-background'
 import { exercisesData, type Exercise } from '@/data/exercises'
 import {
@@ -14,25 +14,39 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PremiumButton, GlassCard, SelectionPill } from '@/components/ui/premium-ui'
-
-interface DayPlan {
-  day: string;
-  focus: string;
-  exercises: Exercise[];
-}
+import { buildWeeklyPlan, BODYWEIGHT, type DayPlan, type Goal } from '@/lib/planner'
 
 function App() {
   // Form State
   const [time, setTime] = useState(30);
-  const [goal, setGoal] = useState<'growth' | 'definition'>('growth');
+  const [goal, setGoal] = useState<Goal>('growth');
   const [daysPerWeek, setDaysPerWeek] = useState(3);
-  const [availableEquipment, setAvailableEquipment] = useState<string[]>(['None']);
+  const [availableEquipment, setAvailableEquipment] = useState<string[]>([BODYWEIGHT]);
   const [focusMuscles, setFocusMuscles] = useState<string[]>(['Push', 'Pull', 'Legs', 'Core']);
 
   // App State
   const [weeklyPlan, setWeeklyPlan] = useState<DayPlan[] | null>(null);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const modalOpen = isModalOpen && selectedExercise !== null;
+
+  useEffect(() => {
+    if (!modalOpen) return;
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsModalOpen(false);
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', onKeyDown);
+    closeButtonRef.current?.focus();
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      opener?.focus();
+    };
+  }, [modalOpen]);
 
   const equipmentOptions = [
     'None', 'Dumbbells', 'Pull-up Bar', 'Resistance Band', 'TRX', 'Bench'
@@ -46,50 +60,29 @@ function App() {
   ];
 
   const toggleEquipment = (eq: string) => {
-    setAvailableEquipment(prev =>
-      prev.includes(eq) ? prev.filter(e => e !== eq) : [...prev, eq]
-    );
+    setAvailableEquipment(prev => {
+      const next = prev.includes(eq) ? prev.filter(e => e !== eq) : [...prev, eq];
+      // Bodyweight is always available, so an empty selection means bodyweight only.
+      return next.length > 0 ? next : [BODYWEIGHT];
+    });
   };
 
   const toggleMuscle = (m: string) => {
-    setFocusMuscles(prev =>
-      prev.includes(m) ? prev.filter(item => item !== m) : [...prev, m]
-    );
+    setFocusMuscles(prev => {
+      if (!prev.includes(m)) return [...prev, m];
+      // A plan needs at least one focus area.
+      return prev.length > 1 ? prev.filter(item => item !== m) : prev;
+    });
   };
 
   const generatePlan = () => {
-    const validExercises = exercisesData.filter(ex => {
-      const dbEq = ex.equipment.toLowerCase();
-      const currentEq = [...availableEquipment];
-      if (!currentEq.includes("None")) currentEq.push("None");
-      return currentEq.some(eq => dbEq.includes(eq.toLowerCase()));
-    });
-
-    const totalExercisesPerDay = Math.max(2, Math.floor(time / 5));
-    let sets = 3, reps = "8-12", rest = "90s";
-    if (goal === 'definition') { sets = 4; reps = "15-20"; rest = "45s"; }
-
-    const allDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-    const daysOfWeek = allDays.slice(0, daysPerWeek);
-    const plan: DayPlan[] = [];
-
-    focusMuscles.forEach((muscle, index) => {
-      const dayName = daysOfWeek[index % daysOfWeek.length];
-      let muscleExercises = validExercises.filter(ex => ex.category === muscle);
-      if (muscleExercises.length === 0) {
-        muscleExercises = exercisesData.filter(ex => ex.category === muscle && ex.equipment === "None");
-      }
-
-      const shuffled = [...muscleExercises].sort(() => 0.5 - Math.random());
-      const dayExercises = shuffled.slice(0, totalExercisesPerDay).map(ex => ({ ...ex, sets, reps, rest }));
-
-      const existingDay = plan.find(d => d.day === dayName);
-      if (existingDay) {
-        existingDay.exercises.push(...dayExercises);
-        existingDay.focus += ` & ${muscle}`;
-      } else {
-        plan.push({ day: dayName, focus: muscle + " Day", exercises: dayExercises });
-      }
+    const plan = buildWeeklyPlan(exercisesData, {
+      time,
+      goal,
+      daysPerWeek,
+      equipment: availableEquipment,
+      // Keep the split in a fixed order regardless of the order pills were tapped.
+      focusMuscles: muscleOptions.map(m => m.value).filter(m => focusMuscles.includes(m)),
     });
 
     setWeeklyPlan(plan);
@@ -132,6 +125,9 @@ function App() {
                     {[15, 30, 45, 60].map(m => (
                       <button
                         key={m}
+                        type="button"
+                        aria-pressed={time === m}
+                        aria-label={`${m} minutes per session`}
                         onClick={() => setTime(m)}
                         className={cn(
                           "py-3 rounded-2xl border transition-all text-sm font-bold",
@@ -150,10 +146,15 @@ function App() {
                   </h3>
                   <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/10">
                     <button
+                      type="button"
+                      aria-pressed={goal === 'growth'}
                       onClick={() => setGoal('growth')}
                       className={cn("flex-1 py-3 rounded-xl text-sm font-bold transition-all", goal === 'growth' ? "bg-white/10 text-white" : "text-white/40")}
                     >Growth</button>
                     <button
+                      type="button"
+                      aria-pressed={goal === 'definition'}
+                      aria-label="Definition"
                       onClick={() => setGoal('definition')}
                       className={cn("flex-1 py-3 rounded-xl text-sm font-bold transition-all", goal === 'definition' ? "bg-white/10 text-white" : "text-white/40")}
                     >Def</button>
@@ -168,6 +169,9 @@ function App() {
                     {[2, 3, 4, 5, 6].map(d => (
                       <button
                         key={d}
+                        type="button"
+                        aria-pressed={daysPerWeek === d}
+                        aria-label={`${d} days per week`}
                         onClick={() => setDaysPerWeek(d)}
                         className={cn(
                           "w-10 h-10 rounded-full border transition-all flex items-center justify-center text-sm font-bold",
@@ -234,7 +238,7 @@ function App() {
 
             <div className="grid gap-8">
               {weeklyPlan.map((day, idx) => (
-                <div key={idx} className="group">
+                <div key={day.day} className="group">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-indigo-400 group-hover:bg-indigo-500/20 transition-all">
                       {idx + 1}
@@ -242,9 +246,10 @@ function App() {
                     <h3 className="text-2xl font-bold">{day.day} <span className="text-white/30 font-medium ml-2 text-lg">· {day.focus}</span></h3>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
-                    {day.exercises.map((ex, i) => (
+                    {day.exercises.map(ex => (
                       <button
-                        key={i}
+                        key={ex.name}
+                        type="button"
                         onClick={() => { setSelectedExercise(ex); setIsModalOpen(true); }}
                         className="p-4 bg-white/5 border border-white/10 rounded-2xl text-left hover:bg-white/10 hover:border-white/20 transition-all flex justify-between items-center group/item"
                       >
@@ -264,16 +269,16 @@ function App() {
       </div>
 
       {/* Modal - Simplified & Premium */}
-      {isModalOpen && selectedExercise && (
+      {modalOpen && selectedExercise && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-in fade-in transition-all" onClick={() => setIsModalOpen(false)}>
-          <div className="bg-[#111] border border-white/10 w-full max-w-xl rounded-[2.5rem] overflow-hidden shadow-[0_0_100px_rgba(139,92,246,0.15)] animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+          <div className="bg-[#111] border border-white/10 w-full max-w-xl rounded-[2.5rem] overflow-hidden shadow-[0_0_100px_rgba(139,92,246,0.15)] animate-in zoom-in-95 duration-300" role="dialog" aria-modal="true" aria-labelledby="exercise-title" onClick={e => e.stopPropagation()}>
             <div className="p-10 space-y-8">
               <div className="flex justify-between items-start">
                 <div className="space-y-4">
                   <div className="text-xs font-black tracking-widest uppercase text-indigo-400">{selectedExercise.category}</div>
-                  <h2 className="text-4xl font-black tracking-tight">{selectedExercise.name}</h2>
+                  <h2 id="exercise-title" className="text-4xl font-black tracking-tight">{selectedExercise.name}</h2>
                 </div>
-                <button onClick={() => setIsModalOpen(false)} className="p-3 bg-white/5 hover:bg-white/10 rounded-full transition-all">
+                <button ref={closeButtonRef} type="button" aria-label="Close exercise details" onClick={() => setIsModalOpen(false)} className="p-3 bg-white/5 hover:bg-white/10 rounded-full transition-all">
                   <X className="w-5 h-5" />
                 </button>
               </div>

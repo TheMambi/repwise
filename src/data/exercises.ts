@@ -242,5 +242,77 @@ export const exercisesData: Exercise[] = [
         "primary_muscle": "Abs",
         "difficulty": "Beginner",
         "description": "Lie on your back with arms extended overhead, lift your shoulders and legs off the ground a few inches while pressing your lower back into the floor."
+    },
+    {
+        "name": "Inverted Table Row",
+        "category": "Pull",
+        "equipment": "None",
+        "primary_muscle": "Back",
+        "difficulty": "Intermediate",
+        "description": "Lie under a sturdy, heavy table, grip the edge with both hands, keep your body straight, and pull your chest up to the table edge. Test that the table holds your weight first."
+    },
+    {
+        "name": "Prone Y-T-W Raise",
+        "category": "Pull",
+        "equipment": "None",
+        "primary_muscle": "Back",
+        "difficulty": "Beginner",
+        "description": "Lie face down, lift your chest slightly, and raise your arms into a Y, then a T, then a W shape, squeezing your shoulder blades together at each position."
+    },
+    {
+        "name": "Superman Pull-Down",
+        "category": "Pull",
+        "equipment": "None",
+        "primary_muscle": "Lats",
+        "difficulty": "Beginner",
+        "description": "Lie face down with arms extended overhead, lift your chest and arms off the floor, then pull your elbows down to your ribs and reach back out."
+    },
+    {
+        "name": "Bodyweight Squat",
+        "category": "Legs",
+        "equipment": "None",
+        "primary_muscle": "Quads",
+        "difficulty": "Beginner",
+        "description": "Stand with feet shoulder-width apart, sit your hips back and down until your thighs are parallel to the floor, then drive through your heels to stand."
+    },
+    {
+        "name": "Reverse Lunge",
+        "category": "Legs",
+        "equipment": "None",
+        "primary_muscle": "Glutes",
+        "difficulty": "Beginner",
+        "description": "Step one foot back and lower until both knees are bent to about 90 degrees, then push through the front heel to return to standing. Alternate legs."
+    },
+    {
+        "name": "Glute Bridge",
+        "category": "Legs",
+        "equipment": "None",
+        "primary_muscle": "Glutes",
+        "difficulty": "Beginner",
+        "description": "Lie on your back with knees bent and feet flat, drive your hips up until your body forms a straight line from shoulders to knees, squeeze, and lower with control."
+    },
+    {
+        "name": "Calf Raise",
+        "category": "Legs",
+        "equipment": "None",
+        "primary_muscle": "Calves",
+        "difficulty": "Beginner",
+        "description": "Stand tall, rise onto the balls of your feet as high as you can, pause at the top, and lower slowly. Use a step edge for extra range."
+    },
+    {
+        "name": "Bench Dips",
+        "category": "Push",
+        "equipment": "Bench",
+        "primary_muscle": "Triceps",
+        "difficulty": "Beginner",
+        "description": "Sit on the edge of a bench with hands beside your hips, slide forward, lower your body by bending your elbows to about 90 degrees, and press back up."
+    },
+    {
+        "name": "Bulgarian Split Squat",
+        "category": "Legs",
+        "equipment": "Bench",
+        "primary_muscle": "Quads",
+        "difficulty": "Intermediate",
+        "description": "Rest the top of your rear foot on a bench behind you, lower your back knee toward the floor while keeping your torso upright, and drive up through the front heel."
     }
 ];

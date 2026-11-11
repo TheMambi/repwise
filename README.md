@@ -11,6 +11,7 @@ Everything runs in your browser. There is no backend, no account, no analytics, 
 - Pick equipment (bodyweight only, dumbbells, pull-up bar, resistance band, TRX, bench), session length, focus areas, and goal.
 - Get a full week split with daily focus, exercise order, sets, reps, and rest.
 - Falls back to bodyweight variants when your equipment can't cover a muscle group.
+- Spreads training days across the week and keeps each session inside your time budget.
 - Exercise detail cards with execution notes.
 - Dark glass UI with an animated flow-field background.
 
@@ -37,6 +38,7 @@ Other scripts:
 npm run build          # type-check and produce dist/
 npm run preview        # serve the production build
 npm run lint           # eslint
+npm test               # planner and secret-scanner tests
 npm run scan:secrets   # scan every tracked file for credential patterns
 ```
 
@@ -44,8 +46,9 @@ npm run scan:secrets   # scan every tracked file for credential patterns
 
 ```
 src/
-  App.tsx                 # planner UI and matching logic
-  data/exercises.ts       # exercise catalog (30 movements)
+  App.tsx                 # planner UI
+  lib/planner.ts          # plan-building logic (pure, unit-tested)
+  data/exercises.ts       # exercise catalog (38 movements)
   components/ui/          # glass cards, buttons, flow-field background
 legacy/                   # original single-file prototype and planning notes
 .githooks/                # pre-commit secret scanner (auto-installed)
