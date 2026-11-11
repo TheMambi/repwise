@@ -4,11 +4,14 @@
 Runs on staged files by default; `--all` scans every tracked file (used in CI).
 Bypass for a confirmed false positive: `git commit --no-verify`, then add the value to ALLOW below.
 """
+from __future__ import annotations
+
 import re
+from pathlib import Path
 import subprocess
 import sys
 
-ALLOW: list[str] = [  # exact substrings that are known-safe false positives
+ALLOW: list[str] = [  # exact matches that are known-safe false positives
 ]
 FORBIDDEN_PATHS = re.compile(
     r"(^|/)\.env(\.(?!example$|sample$)[^/]*)?$"
@@ -33,52 +36,52 @@ PATTERNS = {
     "JWT": r"\beyJ[A-Za-z0-9_\-]{10,}\.eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b",
     "Hardcoded secret assignment": r"(?i)\b(api[_-]?key|api[_-]?secret|secret[_-]?key|client[_-]?secret|access[_-]?token|auth[_-]?token|private[_-]?key|password|passwd)\b[\"']?\s*[:=]\s*[\"'][^\"'\s]{8,}[\"']",
 }
-SKIP = re.compile(r"(package-lock\.json|yarn\.lock|pnpm-lock\.yaml|\.min\.(js|css)$|\.map$|\.svg$|\.(png|jpe?g|gif|ico|woff2?|ttf|pdf|zip)$|^\.githooks/scan-secrets\.py$)")
+def git(*args: str, cwd: Path | None = None) -> bytes:
+    return subprocess.run(
+        ["git", *args], cwd=cwd, capture_output=True, check=True
+    ).stdout
 
 
-def staged() -> list[str]:
-    out = subprocess.run(["git", "diff", "--cached", "--name-only", "--diff-filter=ACMR", "-z"], capture_output=True, text=True).stdout
-    return [p for p in out.split("\0") if p]
-
-
-def tracked() -> list[str]:
-    out = subprocess.run(["git", "ls-files", "-z"], capture_output=True, text=True).stdout
-    return [p for p in out.split("\0") if p]
-
-
-def content(path: str, use_index: bool) -> bytes:
-    if use_index:
-        return subprocess.run(["git", "show", f":{path}"], capture_output=True).stdout
+def main() -> int:
+    all_mode = "--all" in sys.argv
     try:
-        return open(path, "rb").read()
-    except OSError:
-        return b""
-
-
-all_mode = "--all" in sys.argv
-files = tracked() if all_mode else staged()
-problems: list[str] = []
-for p in files:
-    if FORBIDDEN_PATHS.search(p):
-        problems.append(f"{p}: this file type must never be committed")
-        continue
-    if SKIP.search(p):
-        continue
-    data = content(p, use_index=not all_mode)
-    if b"\0" in data[:8000] or len(data) > 5_000_000:
-        continue
-    txt = data.decode("utf-8", "ignore")
-    for name, rx in PATTERNS.items():
-        for m in re.finditer(rx, txt):
-            s = m.group(0)
-            if any(a in s for a in ALLOW):
+        root = Path(git("rev-parse", "--show-toplevel").decode().strip())
+        args = ("ls-files", "-z") if all_mode else (
+            "diff", "--cached", "--name-only", "--diff-filter=ACMR", "-z"
+        )
+        files = [p for p in git(*args, cwd=root).decode().split("\0") if p]
+        problems: list[str] = []
+        binary_files = 0
+        for p in files:
+            if FORBIDDEN_PATHS.search(p):
+                problems.append(f"{p}: this file type must never be committed")
                 continue
-            line = txt.count("\n", 0, m.start()) + 1
-            problems.append(f"{p}:{line}: {name}: {s[:12]}…")
+            # Inspect text regardless of extension (including lockfiles, SVGs,
+            # source maps and minified code). Never silently pass a read error.
+            data = (root / p).read_bytes() if all_mode else git("show", f":{p}", cwd=root)
+            if b"\0" in data[:8000]:
+                binary_files += 1
+                continue
+            txt = data.decode("utf-8", "ignore")
+            for name, rx in PATTERNS.items():
+                for m in re.finditer(rx, txt):
+                    if m.group(0) in ALLOW:
+                        continue
+                    line = txt.count("\n", 0, m.start()) + 1
+                    # Do not copy any part of a credential into CI logs.
+                    problems.append(f"{p}:{line}: {name} (value redacted)")
+    except (OSError, UnicodeError, subprocess.CalledProcessError):
+        print("✖ Secret scan could not read the repository or a tracked file; scan incomplete.", file=sys.stderr)
+        return 2
 
-if problems:
-    print("\n✖ Secret scan blocked this commit:\n  " + "\n  ".join(problems))
-    print("\n  Real secret? Remove it, rotate it, never commit it."
-          "\n  False positive? Add the value to ALLOW in .githooks/scan-secrets.py, or use --no-verify once.")
-    sys.exit(1)
-print(f"✔ secret scan clean ({len(files)} file{'s' if len(files) != 1 else ''})")
+    if problems:
+        print("\n✖ Secret scan blocked this commit:\n  " + "\n  ".join(problems))
+        print("\n  Real secret? Remove it, rotate it, never commit it."
+              "\n  False positive? Review it before adding an exact match to ALLOW.")
+        return 1
+    print(f"✔ secret scan clean ({len(files)} files; {binary_files} binary files not inspected)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -8,6 +8,8 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+__pycache__/
+*.pyc
 dist
 dist-ssr
 *.local
@@ -39,3 +41,6 @@ id_ed25519*
 .gemini/
 .claude/settings.local.json
 secrets*.json
+
+# Local audit notes (kept out of the public repo)
+SECURITY_REVIEW.md

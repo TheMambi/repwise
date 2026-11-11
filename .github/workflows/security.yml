@@ -17,12 +17,20 @@ jobs:
     name: Secret scan (full history)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v3
+          persist-credentials: false
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: false
+      # The action's event-specific range can scan zero commits on merge pushes.
+      # It adds the installed CLI to PATH; explicitly scan all fetched history.
+      - name: Scan all reachable history, including merge changes
+        run: gitleaks git --redact --log-opts="--all --full-history -m" .
+      - name: Test secret scanner failure modes
+        run: python3 -m unittest discover -s tests -p 'test_*.py'
       - name: Repo-local pattern scan over the whole tree
         run: python3 .githooks/scan-secrets.py --all
 
@@ -30,12 +38,15 @@ jobs:
     name: Lint, audit, build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 22
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm audit --audit-level=high
       - run: npm run lint
+      - run: node --test tests/planner.test.ts
       - run: npm run build
