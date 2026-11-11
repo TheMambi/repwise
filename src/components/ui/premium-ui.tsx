@@ -22,6 +22,7 @@ export const PremiumButton = ({
 
     return (
         <button
+            type="button"
             onClick={onClick}
             className={cn(
                 "px-8 py-3 rounded-full font-bold transition-all transform active:scale-95 flex items-center justify-center gap-2",
@@ -54,6 +55,8 @@ export const SelectionPill = ({
     onClick: () => void
 }) => (
     <button
+        type="button"
+        aria-pressed={selected}
         onClick={onClick}
         className={cn(
             "px-6 py-2 rounded-full border transition-all flex items-center gap-2 text-sm font-medium",

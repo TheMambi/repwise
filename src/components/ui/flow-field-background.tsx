@@ -46,7 +46,7 @@ export default function NeuralBackground({
         let width = container.clientWidth;
         let height = container.clientHeight;
         let particles: Particle[] = [];
-        let animationFrameId: number;
+        let animationFrameId = 0;
         const mouse = { x: -1000, y: -1000 }; // Start off-screen
 
         // --- PARTICLE CLASS ---
@@ -144,7 +144,7 @@ export default function NeuralBackground({
         };
 
         // --- ANIMATION LOOP ---
-        const animate = () => {
+        const step = () => {
             // "Fade" effect: Instead of clearing the canvas, we draw a semi-transparent rect
             // This creates the "Trails" look.
             // We use the background color of the parent or a dark overlay.
@@ -157,6 +157,10 @@ export default function NeuralBackground({
                 p.draw(ctx);
             });
 
+        };
+
+        const animate = () => {
+            step();
             animationFrameId = requestAnimationFrame(animate);
         };
 
@@ -165,6 +169,9 @@ export default function NeuralBackground({
             width = container.clientWidth;
             height = container.clientHeight;
             init();
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                for (let i = 0; i < 150; i++) step();
+            }
         };
 
         const handleMouseMove = (e: MouseEvent) => {
@@ -180,7 +187,12 @@ export default function NeuralBackground({
 
         // Start
         init();
-        animate();
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            // Paint the same field once as a still image instead of animating it.
+            for (let i = 0; i < 150; i++) step();
+        } else {
+            animate();
+        }
 
         window.addEventListener("resize", handleResize);
         container.addEventListener("mousemove", handleMouseMove);
@@ -196,7 +208,7 @@ export default function NeuralBackground({
 
     return (
         <div ref={containerRef} className={cn("relative w-full h-full bg-black overflow-hidden", className)}>
-            <canvas ref={canvasRef} className="block w-full h-full" />
+            <canvas ref={canvasRef} aria-hidden="true" className="block w-full h-full" />
         </div>
     );
 }
