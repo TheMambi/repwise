@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "Repwise — a weekly home workout planner built around your equipment, time, focus, and goal.",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "type": "module",
   "homepage": "https://repwiseapp.vercel.app",
   "repository": {

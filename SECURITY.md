@@ -20,7 +20,7 @@ You can expect an acknowledgement within 7 days.
 - A local pre-commit hook that blocks common credential patterns and secret-bearing files (`.githooks/`), installed automatically by `npm install`.
 - Dependabot for npm and GitHub Actions; CI fails on high-severity advisories.
 - Strict Content-Security-Policy (same-origin scripts and styles only, no inline code) and hardening headers served by Vercel (`vercel.json`).
-- MIT-licensed, no third-party runtime services.
+- AGPL-3.0-licensed, no third-party runtime services.
 
 ## Scanner guarantees and limitations
 
