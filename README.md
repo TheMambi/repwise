@@ -45,7 +45,7 @@ The planner lives in [`src/lib/planner.ts`](src/lib/planner.ts) as one pure func
 
 The exercise card is a native modal dialog with a labelled title. Focus moves into it, Tab cannot reach the page behind it, the page behind does not scroll, Escape closes it and focus returns to the exercise you opened. On a small phone, or one held sideways, the card scrolls. When the plan replaces the form, focus moves to the plan's heading, and Reconfigure puts it back on the first setting. Option buttons announce their selected state, every control shows a ring when reached from the keyboard, and text meets WCAG AA contrast against the dark background.
 
-The animated background stops when the system asks for reduced motion.
+The animated background has a pause button. It also rests while the tab is hidden or the exercise card is open, and it stays still when the system asks for reduced motion, including when that setting changes while the page is open.
 
 ## Tech
 

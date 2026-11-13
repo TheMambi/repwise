@@ -1,6 +1,6 @@
 # Known pitfalls
 
-Read this before changing the catalog, the planner, the tests or the exercise dialog. Add a row when a fix teaches something that is not obvious from the code.
+Read this before changing the catalog, the planner, the tests, the exercise dialog or the background. Add a row when a fix teaches something that is not obvious from the code.
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
@@ -14,3 +14,6 @@ Read this before changing the catalog, the planner, the tests or the exercise di
 | A closed dialog shows on the page. | A display class such as `flex` on the `dialog` element outranks the browser's own rule that hides a closed dialog. | Give the dialog its layout with the `open:` variant (`open:flex`), so it applies only while the dialog is open. |
 | A click inside the exercise dialog closes it. | The browser reports a click on the backdrop as a click on the `dialog` element, and it reports a click on the dialog's own padding the same way. | The dialog has no padding and one child that fills it, and the click handler closes only when the target is the dialog itself. Keep padding and scrolling on the child. |
 | `outline-none` on an element stops working, or a focus ring is missing. | The focus ring is one `:focus-visible` rule in `src/index.css`. It sits in Tailwind's base layer so utility classes can still override it. Moved out of the layer, it beats `outline-none`. | Leave the rule inside `@layer base`. Do not add ring classes to single buttons. |
+| An entrance animation such as `animate-in fade-in` or `zoom-in-95` never plays. | Those class names belong to the tailwindcss-animate plugin, which is not installed. Tailwind writes no CSS for a class it does not know and gives no warning. | Use the `fade-in` animation from `tailwind.config.js` behind `motion-safe:`. After adding an animation class, build and search the CSS in `dist/assets` for it. |
+| The background restarts or flashes when the pause button, the dialog or a resize touches it. | The loop, its particles and the canvas size live inside one effect. Anything added to that effect's dependencies rebuilds all of it. | `paused` reaches the loop through a ref and a second effect. A resize is applied once after it settles, keeps the particles, and ignores a small change in height alone, which is a phone toolbar sliding. |
+| The background runs faster on some screens. | One step per animation frame doubles the speed on a 120 Hz display. | Steps follow the clock (`STEP_MS` in `flow-field-background.tsx`), 60 a second on any display. Keep new motion inside `step` so it is covered. |

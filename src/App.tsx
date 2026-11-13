@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import NeuralBackground from '@/components/ui/flow-field-background'
 import { exercisesData } from '@/data/exercises'
 import {
@@ -23,12 +23,21 @@ import {
   RotateCcw,
   ChevronRight,
   X,
-  Play
+  Play,
+  Pause
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PremiumButton, GlassCard, SelectionPill } from '@/components/ui/premium-ui'
 import { buildWeeklyPlan, type DayPlan, type PlannedExercise } from '@/lib/planner'
 import { sessionLengthText, volumeText } from '@/lib/plan-text'
+
+const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
+
+function subscribeToReducedMotion(onChange: () => void) {
+  const query = window.matchMedia(REDUCED_MOTION);
+  query.addEventListener('change', onChange);
+  return () => query.removeEventListener('change', onChange);
+}
 
 function App() {
   // Form State
@@ -42,6 +51,8 @@ function App() {
   // App State
   const [weeklyPlan, setWeeklyPlan] = useState<DayPlan[] | null>(null);
   const [selectedExercise, setSelectedExercise] = useState<PlannedExercise | null>(null);
+  const [backgroundPaused, setBackgroundPaused] = useState(false);
+  const reducedMotion = useSyncExternalStore(subscribeToReducedMotion, () => window.matchMedia(REDUCED_MOTION).matches);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const planHeadingRef = useRef<HTMLHeadingElement>(null);
   const firstSettingRef = useRef<HTMLButtonElement>(null);
@@ -60,11 +71,11 @@ function App() {
     wasPlanShown.current = planShown;
     if (planShown) {
       planHeadingRef.current?.focus({ preventScroll: true });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
     } else {
       firstSettingRef.current?.focus();
     }
-  }, [planShown]);
+  }, [planShown, reducedMotion]);
 
   const toggleEquipment = (eq: Equipment) => {
     setAvailableEquipment(prev => (prev.includes(eq) ? prev.filter(e => e !== eq) : [...prev, eq]));
@@ -96,16 +107,33 @@ function App() {
     <div className="relative min-h-screen bg-[#050505] text-white selection:bg-indigo-500/30 overflow-x-hidden">
       {/* Background layer */}
       <div className="fixed inset-0 z-0">
-        <NeuralBackground color="#8b5cf6" particleCount={400} speed={0.5} trailOpacity={0.1} />
+        <NeuralBackground
+          color="#8b5cf6"
+          particleCount={400}
+          speed={0.5}
+          trailOpacity={0.1}
+          paused={reducedMotion || backgroundPaused || selectedExercise !== null}
+        />
         <div className="absolute inset-0 bg-gradient-to-tr from-[#050505] via-transparent to-[#050505] opacity-80" />
       </div>
+
+      {!reducedMotion && (
+        <button
+          type="button"
+          onClick={() => setBackgroundPaused(paused => !paused)}
+          className="absolute top-6 right-6 z-20 px-3 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-white/60 hover:border-white/30 hover:text-white transition-all flex items-center gap-2"
+        >
+          {backgroundPaused ? <Play className="w-3 h-3 fill-current" /> : <Pause className="w-3 h-3 fill-current" />}
+          {backgroundPaused ? 'Play background' : 'Pause background'}
+        </button>
+      )}
 
       <main className="relative z-10 max-w-6xl mx-auto px-6 py-20">
         {!weeklyPlan ? (
           <div className="flex flex-col items-center text-center space-y-16">
             {/* Hero Section */}
             <div className="space-y-6 max-w-3xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-bold tracking-widest uppercase text-indigo-400 animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-bold tracking-widest uppercase text-indigo-400 motion-safe:animate-fade-in">
                 <Play className="w-3 h-3 fill-current" /> Next-Gen Training
               </div>
               <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-tight drop-shadow-2xl">
@@ -247,7 +275,7 @@ function App() {
             </PremiumButton>
           </div>
         ) : (
-          <div className="space-y-12 max-w-4xl mx-auto animate-in fade-in duration-700">
+          <div className="space-y-12 max-w-4xl mx-auto motion-safe:animate-fade-in">
             <header className="flex flex-wrap justify-between items-end gap-4 pb-8 border-b border-white/10">
               <div>
                 <h1 ref={planHeadingRef} tabIndex={-1} className="text-4xl font-black tracking-tight outline-none">Your Custom Regimen</h1>
@@ -300,7 +328,7 @@ function App() {
         onClose={() => setSelectedExercise(null)}
         // A click on the backdrop arrives on the dialog itself. The content fills the dialog, so any other target is inside it.
         onClick={e => { if (e.target === e.currentTarget) e.currentTarget.close(); }}
-        className="w-[calc(100%-3rem)] max-w-xl max-h-[calc(100%-3rem)] open:flex flex-col bg-[#111] text-white border border-white/10 rounded-[2.5rem] overflow-hidden shadow-[0_0_100px_rgba(139,92,246,0.15)] backdrop:bg-black/90 backdrop:backdrop-blur-xl"
+        className="w-[calc(100%-3rem)] max-w-xl max-h-[calc(100%-3rem)] open:flex flex-col bg-[#111] text-white border border-white/10 rounded-[2.5rem] overflow-hidden shadow-[0_0_100px_rgba(139,92,246,0.15)] backdrop:bg-black/90 backdrop:backdrop-blur-xl motion-safe:animate-[fade-in_0.3s_ease-out]"
       >
         {selectedExercise && (
           <div className="p-6 sm:p-10 space-y-8 overflow-y-auto">

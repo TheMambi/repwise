@@ -11,12 +11,11 @@ export const PremiumButton = ({
     children: React.ReactNode,
     onClick?: () => void,
     className?: string,
-    variant?: 'primary' | 'secondary' | 'outline',
+    variant?: 'primary' | 'outline',
     icon?: React.ElementType
 }) => {
     const variants = {
         primary: "bg-white text-black hover:bg-slate-200 shadow-[0_0_20px_rgba(255,255,255,0.3)]",
-        secondary: "bg-slate-900 text-white border border-white/10 hover:bg-slate-800",
         outline: "bg-transparent text-white border border-white/20 hover:border-white/40"
     }
 
