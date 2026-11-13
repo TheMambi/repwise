@@ -3,13 +3,13 @@
 [![Security & Build](https://github.com/TheMambi/repwise/actions/workflows/security.yml/badge.svg?branch=dev)](https://github.com/TheMambi/repwise/actions/workflows/security.yml)
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-8b5cf6.svg)](LICENSE)
 
-A weekly home workout planner. Tell it what gear you own, how long you can train and which areas you want to work, and it lays out a full week of sessions with sets, reps and rest for each movement.
+A weekly home workout planner. Tell it what gear you own, your level, how long you can train and which areas you want to work, and it lays out a full week of sessions with sets, reps and rest for each movement.
 
 **[Open the app](https://repwiseapp.vercel.app)**
 
 [![The Repwise setup screen: session length, goal, days per week, equipment and focus areas above a Launch Program button, on a dark animated background](docs/screenshots/configure.png)](https://repwiseapp.vercel.app)
 
-It mixes calisthenics and weight work, keeps each session inside your time budget, and spreads training days so rest falls between them. Tap any exercise for form notes.
+It mixes calisthenics and weight work, keeps each session inside your time budget, and spreads training days so rest falls between them. Every day shows how long it should take, and a day that comes out shorter than you asked for says so. Tap any exercise for form notes.
 
 Everything runs in your browser. There is no backend, no account, no analytics, and nothing you pick is stored or sent anywhere.
 
@@ -18,12 +18,13 @@ Everything runs in your browser. There is no backend, no account, no analytics, 
 | Setting | Choices |
 | --- | --- |
 | **Session length** | 15, 30, 45 or 60 minutes |
-| **Goal** | Growth (3 sets of 8 to 12, 90 seconds rest) or definition (4 sets of 15 to 20, 45 seconds rest) |
+| **Goal** | Growth (3 sets of 8 to 12 reps, 90 seconds rest) or definition (4 sets of 15 to 20 reps, 45 seconds rest). Holds such as the plank are timed instead: 20 to 30 seconds for growth, 30 to 45 for definition |
+| **Level** | Beginner, intermediate or advanced. A plan only uses movements at or below your level |
 | **Days per week** | 2 to 6, spaced so rest days land between sessions where the week allows |
 | **Equipment** | Dumbbells, pull-up bar, resistance band, TRX, bench. Bodyweight movements are always included |
 | **Focus areas** | Push, pull, legs, core |
 
-The result is a day-by-day plan drawn from a catalog of 36 movements. Each exercise opens a detail card with how to do it, the volume, the rest and the target muscle.
+The result is a day-by-day plan drawn from a catalog of 36 movements. Each exercise opens a detail card with how to do it, the volume, the rest, the target muscle and the level.
 
 | A generated week | Exercise detail |
 | :---: | :---: |
@@ -35,7 +36,9 @@ The planner lives in [`src/lib/planner.ts`](src/lib/planner.ts) as one pure func
 
 - **Equipment filter.** Each focus area gets a pool of the movements your gear allows. A movement that needs two things, such as a band and a pull-up bar, is only offered when you own both. Bodyweight work is always in the pool, so every area has something to do even with no equipment.
 - **Spreading the week.** Focus areas rotate across the training days. Every area you chose gets at least one day; if there are more days than areas, the rotation repeats.
-- **Fitting the time.** A session holds about one exercise per 5 minutes (never fewer than 2), split evenly between the areas trained that day.
+- **Level filter.** Each pool keeps only the movements at or below the level you chose. If an area has nothing that easy for your gear, its easiest movements stand in so the day is never empty, and every exercise shows its level.
+- **Fitting the time.** An exercise is timed from its own prescription: every set at the top of its range, 3 seconds a rep, plus the rest after each set. That comes to about 6 minutes for growth and 7 for definition, so a 30 minute session holds 4 exercises and a 60 minute one about 9 or 8. The exercises are dealt out one at a time between the areas trained that day, so an area that runs out of movements leaves its share to the others.
+- **Short days.** A small pool can run out before the session is full. The planner then adds sets, up to 5 per exercise, for as long as a whole extra round fits. If there is still room for another exercise after that, the day is marked as shorter than the length you picked. The lasting fix for a short day is more movements in the catalog.
 - **Variety.** Each pool is shuffled once per plan and read in order, so an area that comes back later in the week gets fresh movements before any repeat.
 
 ## Accessibility
@@ -71,6 +74,7 @@ Before changing the catalog or the planner, read the [known pitfalls](docs/PITFA
 src/
   App.tsx                 planner UI
   lib/planner.ts          plan-building logic (pure, unit-tested)
+  lib/plan-text.ts        wording for sets, holds and session length
   data/exercises.ts       exercise catalog (36 movements)
   data/options.ts         the choices the form offers, shared by the form, catalog, planner and tests
   components/ui/          glass cards, buttons, flow-field background

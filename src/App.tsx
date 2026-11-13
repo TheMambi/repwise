@@ -5,11 +5,13 @@ import {
   DAY_COUNTS,
   EQUIPMENT,
   FOCUS_AREAS,
+  LEVELS,
   SESSION_LENGTHS,
   type DayCount,
   type Equipment,
   type FocusArea,
-  type Goal
+  type Goal,
+  type Level
 } from '@/data/options'
 import {
   Dumbbell,
@@ -17,6 +19,7 @@ import {
   Target,
   Calendar,
   Bolt,
+  Gauge,
   RotateCcw,
   ChevronRight,
   X,
@@ -25,11 +28,13 @@ import {
 import { cn } from '@/lib/utils'
 import { PremiumButton, GlassCard, SelectionPill } from '@/components/ui/premium-ui'
 import { buildWeeklyPlan, type DayPlan, type PlannedExercise } from '@/lib/planner'
+import { sessionLengthText, volumeText } from '@/lib/plan-text'
 
 function App() {
   // Form State
   const [time, setTime] = useState(30);
   const [goal, setGoal] = useState<Goal>('growth');
+  const [level, setLevel] = useState<Level>('Beginner');
   const [daysPerWeek, setDaysPerWeek] = useState<DayCount>(3);
   const [availableEquipment, setAvailableEquipment] = useState<Equipment[]>([]);
   const [focusMuscles, setFocusMuscles] = useState<FocusArea[]>([...FOCUS_AREAS]);
@@ -74,6 +79,7 @@ function App() {
     const plan = buildWeeklyPlan(exercisesData, {
       time,
       goal,
+      level,
       daysPerWeek,
       equipment: availableEquipment,
       // Keep the split in a fixed order regardless of the order pills were tapped.
@@ -213,6 +219,23 @@ function App() {
                     ))}
                   </div>
                 </section>
+
+                <section className="space-y-4">
+                  <h3 className="text-sm font-bold text-white/30 uppercase tracking-widest flex items-center gap-2">
+                    <Gauge className="w-4 h-4" /> Level
+                  </h3>
+                  <div className="flex flex-col sm:flex-row bg-white/5 p-1.5 rounded-2xl border border-white/10">
+                    {LEVELS.map(l => (
+                      <button
+                        key={l}
+                        type="button"
+                        aria-pressed={level === l}
+                        onClick={() => setLevel(l)}
+                        className={cn("flex-1 py-3 rounded-xl text-sm font-bold transition-all", level === l ? "bg-white/10 text-white" : "text-white/40")}
+                      >{l}</button>
+                    ))}
+                  </div>
+                </section>
               </div>
             </GlassCard>
 
@@ -236,10 +259,13 @@ function App() {
               {weeklyPlan.map((day, idx) => (
                 <div key={day.day} className="group">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-indigo-400 group-hover:bg-indigo-500/20 transition-all">
+                    <div className="w-12 h-12 shrink-0 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-indigo-400 group-hover:bg-indigo-500/20 transition-all">
                       {idx + 1}
                     </div>
-                    <h3 className="text-2xl font-bold">{day.day} <span className="text-white/30 font-medium ml-2 text-lg">· {day.focus}</span></h3>
+                    <div>
+                      <h3 className="text-2xl font-bold">{day.day} <span className="text-white/30 font-medium ml-2 text-lg">· {day.focus}</span></h3>
+                      <p className="text-sm text-white/60 mt-1">{sessionLengthText(day, time)}</p>
+                    </div>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     {day.exercises.map(ex => (
@@ -250,8 +276,8 @@ function App() {
                         className="p-4 bg-white/5 border border-white/10 rounded-2xl text-left hover:bg-white/10 hover:border-white/20 transition-all flex justify-between items-center group/item"
                       >
                         <div>
-                          <p className="font-bold text-white/80 group-hover/item:text-white transition-colors">{ex.name}</p>
-                          <p className="text-xs text-white/40 mt-1 uppercase font-black tracking-widest">{ex.sets}x{ex.reps} · {ex.rest} Rest</p>
+                          <p className="font-bold text-white/80 group-hover/item:text-white transition-colors">{ex.name} <span className="text-white/60 font-medium ml-2 text-sm">· {ex.difficulty}</span></p>
+                          <p className="text-xs text-white/40 mt-1 uppercase font-black tracking-widest">{volumeText(ex)} · {ex.rest} seconds rest</p>
                         </div>
                         <ChevronRight className="w-4 h-4 text-white/20 group-hover/item:translate-x-1 group-hover/item:text-white transition-all" />
                       </button>
@@ -283,10 +309,11 @@ function App() {
                 "{selectedExercise.description}"
               </div>
 
-              <div className="grid grid-cols-3 gap-6 pt-6 border-t border-white/5">
-                <div><p className="text-[10px] font-black uppercase text-white/20 tracking-widest mb-1">Volume</p><p className="text-xl font-bold">{selectedExercise.sets}x{selectedExercise.reps}</p></div>
-                <div><p className="text-[10px] font-black uppercase text-white/20 tracking-widest mb-1">Rest</p><p className="text-xl font-bold">{selectedExercise.rest}</p></div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-6 border-t border-white/5">
+                <div className="col-span-2"><p className="text-[10px] font-black uppercase text-white/20 tracking-widest mb-1">Volume</p><p className="text-xl font-bold">{volumeText(selectedExercise)}</p></div>
+                <div><p className="text-[10px] font-black uppercase text-white/20 tracking-widest mb-1">Rest</p><p className="text-xl font-bold">{selectedExercise.rest} seconds</p></div>
                 <div><p className="text-[10px] font-black uppercase text-white/20 tracking-widest mb-1">Target</p><p className="text-xl font-bold">{selectedExercise.primary_muscle}</p></div>
+                <div><p className="text-[10px] font-black uppercase text-white/20 tracking-widest mb-1">Level</p><p className="text-xl font-bold">{selectedExercise.difficulty}</p></div>
               </div>
 
               <PremiumButton onClick={() => setIsModalOpen(false)} className="w-full py-4 mt-4">Got it</PremiumButton>
