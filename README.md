@@ -7,7 +7,7 @@ A weekly home workout planner. Tell it what gear you own, your level, how long y
 
 **[Open the app](https://repwiseapp.vercel.app)**
 
-[![The Repwise setup screen: session length, goal, days per week, equipment and focus areas above a Launch Program button, on a dark animated background](docs/screenshots/configure.png)](https://repwiseapp.vercel.app)
+[![The Repwise setup screen: session length, goal, days per week, equipment, focus areas and level above a Launch Program button, on a dark animated background](docs/screenshots/configure.png)](https://repwiseapp.vercel.app)
 
 It mixes calisthenics and weight work, keeps each session inside your time budget, and spreads training days so rest falls between them. Every day shows how long it should take, and a day that comes out shorter than you asked for says so. Tap any exercise for form notes.
 
@@ -28,11 +28,11 @@ The result is a day-by-day plan drawn from a catalog of 36 movements. Each exerc
 
 | A generated week | Exercise detail |
 | :---: | :---: |
-| <img src="docs/screenshots/plan.png" alt="A four-day plan with Monday push day and Tuesday pull day, each listing exercises with sets, reps and rest" width="520"> | <img src="docs/screenshots/exercise.png" alt="Dumbbell Bench Press detail card with form notes, volume, rest and target muscle" width="340"> |
+| <img src="docs/screenshots/plan.png" alt="A four-day plan with Monday push day and Tuesday pull day. Each day shows its estimated length and each exercise its level, sets, reps and rest" width="520"> | <img src="docs/screenshots/exercise.png" alt="Dumbbell Bench Press detail card with form notes, volume, rest, target muscle and level" width="340"> |
 
 ## How it works
 
-The planner lives in [`src/lib/planner.ts`](src/lib/planner.ts) as one pure function, so the tests can run it with a fixed random source.
+The planner lives in [`src/lib/planner.ts`](src/lib/planner.ts) as one pure function, so the tests can run it with a fixed random source. They build a plan for every combination of settings the form can send, 57,600 in all, and check each one against the rules below.
 
 - **Equipment filter.** Each focus area gets a pool of the movements your gear allows. A movement that needs two things, such as a band and a pull-up bar, is only offered when you own both. Bodyweight work is always in the pool, so every area has something to do even with no equipment.
 - **Spreading the week.** Focus areas rotate across the training days. Every area you chose gets at least one day; if there are more days than areas, the rotation repeats.

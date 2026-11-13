@@ -55,11 +55,18 @@ const WEEK_LAYOUTS: Record<DayCount, string[]> = {
   6: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
 };
 
+// For lookups the planner expects to be in range. Fails loudly if one is not, instead of passing undefined along.
+function at<T>(items: readonly T[], index: number): T {
+  const item = items[index];
+  if (item === undefined) throw new RangeError(`nothing at position ${index} of ${items.length}`);
+  return item;
+}
+
 function shuffle<T>(items: readonly T[], random: () => number): T[] {
   const result = [...items];
   for (let i = result.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
+    [result[i], result[j]] = [at(result, j), at(result, i)];
   }
   return result;
 }
@@ -120,7 +127,7 @@ export function buildWeeklyPlan(
   const slots = Math.max(days.length, muscles.length);
   const musclesByDay: FocusArea[][] = days.map(() => []);
   for (let i = 0; i < slots; i++) {
-    musclesByDay[i % days.length].push(muscles[i % muscles.length]);
+    at(musclesByDay, i % days.length).push(at(muscles, i % muscles.length));
   }
 
   const limit = options.time * 60;
@@ -128,7 +135,7 @@ export function buildWeeklyPlan(
   const oneMore = Math.max(exerciseSeconds('reps', prescription.reps), exerciseSeconds('seconds', prescription.seconds));
 
   return days.map((day, dayIndex) => {
-    const areas = musclesByDay[dayIndex].map(muscle => ({
+    const areas = at(musclesByDay, dayIndex).map(muscle => ({
       muscle,
       queue: pools.get(muscle) ?? [],
       picked: [] as PlannedExercise[],
