@@ -1,20 +1,20 @@
+import type { Equipment, FocusArea, Level } from './options';
+
 export interface Exercise {
     name: string;
-    category: string;
-    equipment: string;
+    category: FocusArea;
+    // Everything the movement needs. An empty list means bodyweight only.
+    equipment: readonly Equipment[];
     primary_muscle: string;
-    difficulty: string;
+    difficulty: Level;
     description: string;
-    sets?: number;
-    reps?: string;
-    rest?: string;
 }
 
 export const exercisesData: Exercise[] = [
     {
         "name": "Resistance Band Pull-Ups",
         "category": "Pull",
-        "equipment": "Resistance Band",
+        "equipment": ["Resistance Band", "Pull-up Bar"],
         "primary_muscle": "Back",
         "difficulty": "Beginner",
         "description": "Loop a resistance band around the bar, place your knees or feet in the loop, and pull yourself up until your head crosses the bar level."
@@ -22,7 +22,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Resistance Band Chin-Ups",
         "category": "Pull",
-        "equipment": "Resistance Band",
+        "equipment": ["Resistance Band", "Pull-up Bar"],
         "primary_muscle": "Back",
         "difficulty": "Beginner",
         "description": "Grip the bar with an underhand grip while using a resistance band for assistance, and pull yourself up."
@@ -30,7 +30,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Resistance Band Back Row",
         "category": "Pull",
-        "equipment": "Resistance Band",
+        "equipment": ["Resistance Band"],
         "primary_muscle": "Back",
         "difficulty": "Beginner",
         "description": "Loop a band around a sturdy anchor at waist level, facing it, and pull the expander toward your waist."
@@ -38,7 +38,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Resistance Band Triceps Extension",
         "category": "Push",
-        "equipment": "Resistance Band",
+        "equipment": ["Resistance Band"],
         "primary_muscle": "Triceps",
         "difficulty": "Beginner",
         "description": "Grab a hanging expander with both hands, and stretch your arms at the elbows by activating the triceps."
@@ -46,7 +46,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Resistance Band Standing Pull-Over",
         "category": "Pull",
-        "equipment": "Resistance Band",
+        "equipment": ["Resistance Band"],
         "primary_muscle": "Back",
         "difficulty": "Beginner",
         "description": "Stand away from the anchor, lean slightly forward, and pull the expander arms close to your body."
@@ -54,7 +54,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Resistance Band Biceps Curls",
         "category": "Pull",
-        "equipment": "Resistance Band",
+        "equipment": ["Resistance Band"],
         "primary_muscle": "Biceps",
         "difficulty": "Beginner",
         "description": "Grab the band with an underhand grip and pull it toward your shoulder while keeping your elbow stationary."
@@ -62,7 +62,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Band-Assisted Push-Ups",
         "category": "Push",
-        "equipment": "Resistance Band",
+        "equipment": ["Resistance Band"],
         "primary_muscle": "Chest",
         "difficulty": "Beginner",
         "description": "Get into a high plank position with a resistance band, lower your chest toward the ground, and push back up."
@@ -70,7 +70,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Push-up",
         "category": "Push",
-        "equipment": "None",
+        "equipment": [],
         "primary_muscle": "Chest",
         "difficulty": "Beginner",
         "description": "Start in a high plank with hands shoulder-width apart, lower your body until your chest touches the ground, and push back up."
@@ -78,7 +78,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Pull-up",
         "category": "Pull",
-        "equipment": "Pull-up Bar",
+        "equipment": ["Pull-up Bar"],
         "primary_muscle": "Lats",
         "difficulty": "Intermediate",
         "description": "Hang from a bar with an overhand grip, engage your scapula, and pull your body upward until your chin clears the bar."
@@ -86,7 +86,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Pistol Squat",
         "category": "Legs",
-        "equipment": "None",
+        "equipment": [],
         "primary_muscle": "Quads",
         "difficulty": "Advanced",
         "description": "Stand on one leg with the other extended in front of you, lower your body, and push through your heel to return to standing."
@@ -94,7 +94,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Muscle-up",
         "category": "Pull",
-        "equipment": "Pull-up Bar",
+        "equipment": ["Pull-up Bar"],
         "primary_muscle": "Lats",
         "difficulty": "Advanced",
         "description": "Pull your body up explosively from a hang, transition over the bar into a diet position, and push yourself up."
@@ -102,7 +102,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Handstand",
         "category": "Push",
-        "equipment": "None",
+        "equipment": [],
         "primary_muscle": "Shoulders",
         "difficulty": "Intermediate",
         "description": "Place your hands on the ground, kick your legs into an inverted position, and maintain straight arms."
@@ -110,7 +110,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "L-Sit",
         "category": "Core",
-        "equipment": "None",
+        "equipment": [],
         "primary_muscle": "Abs",
         "difficulty": "Intermediate",
         "description": "Sit on the ground or bars, press through your hands to lift your body, and keep your legs straight and parallel to the floor in an L-shape."
@@ -118,7 +118,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Back Lever",
         "category": "Pull",
-        "equipment": "Pull-up Bar",
+        "equipment": ["Pull-up Bar"],
         "primary_muscle": "Back",
         "difficulty": "Advanced",
         "description": "Hang from a bar, rotate your body backward until inverted, and extend your legs until your body is parallel to the ground."
@@ -126,23 +126,15 @@ export const exercisesData: Exercise[] = [
     {
         "name": "One Arm Push-up",
         "category": "Push",
-        "equipment": "None",
+        "equipment": [],
         "primary_muscle": "Chest",
         "difficulty": "Advanced",
         "description": "Start in a push-up position with one hand beneath your shoulder and the other behind your back, lower your body, and push back up."
     },
     {
-        "name": "Human Flag",
-        "category": "Core",
-        "equipment": "Vertical Pole",
-        "primary_muscle": "Obliques",
-        "difficulty": "Advanced",
-        "description": "Grip a sturdy vertical surface with hands spaced wide, engage your entire body, and use a dynamic kick to lift your legs sideways."
-    },
-    {
         "name": "Front Lever",
         "category": "Pull",
-        "equipment": "Pull-up Bar",
+        "equipment": ["Pull-up Bar"],
         "primary_muscle": "Back",
         "difficulty": "Advanced",
         "description": "Hang from a bar and lift your body until it is parallel to the ground with your front facing up and your body in a straight line."
@@ -150,7 +142,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Freestanding Handstand Push-up",
         "category": "Push",
-        "equipment": "None",
+        "equipment": [],
         "primary_muscle": "Shoulders",
         "difficulty": "Advanced",
         "description": "Kick into a freestanding handstand, lower your body by bending at the elbows, and push back up."
@@ -158,7 +150,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "TRX Rows",
         "category": "Pull",
-        "equipment": "TRX",
+        "equipment": ["TRX"],
         "primary_muscle": "Back",
         "difficulty": "Beginner",
         "description": "Stand facing the anchor, lean back with straight arms, and pull yourself back up with your elbows low."
@@ -166,7 +158,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Bicep Curl",
         "category": "Pull",
-        "equipment": "Dumbbells",
+        "equipment": ["Dumbbells"],
         "primary_muscle": "Biceps",
         "difficulty": "Beginner",
         "description": "Stand with a dumbbell in each hand and palms facing forward, curl the weights toward your chest."
@@ -174,7 +166,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Dumbbell Deadlift",
         "category": "Legs",
-        "equipment": "Dumbbells",
+        "equipment": ["Dumbbells"],
         "primary_muscle": "Glutes",
         "difficulty": "Beginner",
         "description": "Stand with dumbbells in hands, hinge at the hips while bending your knees slightly to lower weights toward the floor, and drive through heels."
@@ -182,7 +174,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Goblet Squat",
         "category": "Legs",
-        "equipment": "Dumbbells",
+        "equipment": ["Dumbbells"],
         "primary_muscle": "Quads",
         "difficulty": "Intermediate",
         "description": "Hold one dumbbell with both hands at chest height, go down into a squat while keeping your chest upright, then stand."
@@ -190,7 +182,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Dumbbell Bench Press",
         "category": "Push",
-        "equipment": "Dumbbells",
+        "equipment": ["Dumbbells"],
         "primary_muscle": "Chest",
         "difficulty": "Beginner",
         "description": "Lie face-up on a bench or floor holding dumbbells, press them upward until arms are fully extended, then lower them slowly."
@@ -198,7 +190,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Romanian Deadlift",
         "category": "Legs",
-        "equipment": "Dumbbells",
+        "equipment": ["Dumbbells"],
         "primary_muscle": "Hamstrings",
         "difficulty": "Beginner",
         "description": "Stand holding dumbbells, hinge at the hips with a straight back and slightly bent knees, lower the weights to shins, and stand up."
@@ -206,7 +198,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Hip Thrust",
         "category": "Legs",
-        "equipment": "Dumbbells",
+        "equipment": ["Dumbbells", "Bench"],
         "primary_muscle": "Glutes",
         "difficulty": "Beginner",
         "description": "Lie with your upper back on a bench and feet flat, hold a dumbbell securely on your hips, and press through your heels to lift your hips."
@@ -214,23 +206,15 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Dumbbell Overhead Press",
         "category": "Push",
-        "equipment": "Dumbbells",
+        "equipment": ["Dumbbells"],
         "primary_muscle": "Shoulders",
         "difficulty": "Beginner",
         "description": "Hold dumbbells just outside your shoulders, press them straight overhead until arms are fully extended, and gradually lower them back down."
     },
     {
-        "name": "Bar Dips",
-        "category": "Push",
-        "equipment": "Parallel Bars",
-        "primary_muscle": "Chest",
-        "difficulty": "Intermediate",
-        "description": "Support yourself on parallel bars with straight arms, lower your body by bending elbows to 90 degrees, and push back up."
-    },
-    {
         "name": "Plank",
         "category": "Core",
-        "equipment": "None",
+        "equipment": [],
         "primary_muscle": "Abs",
         "difficulty": "Beginner",
         "description": "Start on the floor with forearms flat and elbows under shoulders, extend legs back on toes, and hold your body straight from head to heels."
@@ -238,7 +222,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Hollow Holds",
         "category": "Core",
-        "equipment": "None",
+        "equipment": [],
         "primary_muscle": "Abs",
         "difficulty": "Beginner",
         "description": "Lie on your back with arms extended overhead, lift your shoulders and legs off the ground a few inches while pressing your lower back into the floor."
@@ -246,7 +230,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Inverted Table Row",
         "category": "Pull",
-        "equipment": "None",
+        "equipment": [],
         "primary_muscle": "Back",
         "difficulty": "Intermediate",
         "description": "Lie under a sturdy, heavy table, grip the edge with both hands, keep your body straight, and pull your chest up to the table edge. Test that the table holds your weight first."
@@ -254,7 +238,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Prone Y-T-W Raise",
         "category": "Pull",
-        "equipment": "None",
+        "equipment": [],
         "primary_muscle": "Back",
         "difficulty": "Beginner",
         "description": "Lie face down, lift your chest slightly, and raise your arms into a Y, then a T, then a W shape, squeezing your shoulder blades together at each position."
@@ -262,7 +246,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Superman Pull-Down",
         "category": "Pull",
-        "equipment": "None",
+        "equipment": [],
         "primary_muscle": "Lats",
         "difficulty": "Beginner",
         "description": "Lie face down with arms extended overhead, lift your chest and arms off the floor, then pull your elbows down to your ribs and reach back out."
@@ -270,7 +254,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Bodyweight Squat",
         "category": "Legs",
-        "equipment": "None",
+        "equipment": [],
         "primary_muscle": "Quads",
         "difficulty": "Beginner",
         "description": "Stand with feet shoulder-width apart, sit your hips back and down until your thighs are parallel to the floor, then drive through your heels to stand."
@@ -278,7 +262,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Reverse Lunge",
         "category": "Legs",
-        "equipment": "None",
+        "equipment": [],
         "primary_muscle": "Glutes",
         "difficulty": "Beginner",
         "description": "Step one foot back and lower until both knees are bent to about 90 degrees, then push through the front heel to return to standing. Alternate legs."
@@ -286,7 +270,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Glute Bridge",
         "category": "Legs",
-        "equipment": "None",
+        "equipment": [],
         "primary_muscle": "Glutes",
         "difficulty": "Beginner",
         "description": "Lie on your back with knees bent and feet flat, drive your hips up until your body forms a straight line from shoulders to knees, squeeze, and lower with control."
@@ -294,7 +278,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Calf Raise",
         "category": "Legs",
-        "equipment": "None",
+        "equipment": [],
         "primary_muscle": "Calves",
         "difficulty": "Beginner",
         "description": "Stand tall, rise onto the balls of your feet as high as you can, pause at the top, and lower slowly. Use a step edge for extra range."
@@ -302,7 +286,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Bench Dips",
         "category": "Push",
-        "equipment": "Bench",
+        "equipment": ["Bench"],
         "primary_muscle": "Triceps",
         "difficulty": "Beginner",
         "description": "Sit on the edge of a bench with hands beside your hips, slide forward, lower your body by bending your elbows to about 90 degrees, and press back up."
@@ -310,7 +294,7 @@ export const exercisesData: Exercise[] = [
     {
         "name": "Bulgarian Split Squat",
         "category": "Legs",
-        "equipment": "Bench",
+        "equipment": ["Bench"],
         "primary_muscle": "Quads",
         "difficulty": "Intermediate",
         "description": "Rest the top of your rear foot on a bench behind you, lower your back knee toward the floor while keeping your torso upright, and drive up through the front heel."

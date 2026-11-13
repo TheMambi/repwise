@@ -20,10 +20,10 @@ Everything runs in your browser. There is no backend, no account, no analytics, 
 | **Session length** | 15, 30, 45 or 60 minutes |
 | **Goal** | Growth (3 sets of 8 to 12, 90 seconds rest) or definition (4 sets of 15 to 20, 45 seconds rest) |
 | **Days per week** | 2 to 6, spaced so rest days land between sessions where the week allows |
-| **Equipment** | Bodyweight, dumbbells, pull-up bar, resistance band, TRX, bench |
+| **Equipment** | Dumbbells, pull-up bar, resistance band, TRX, bench. Bodyweight movements are always included |
 | **Focus areas** | Push, pull, legs, core |
 
-The result is a day-by-day plan drawn from a catalog of 38 movements. Each exercise opens a detail card with how to do it, the volume, the rest and the target muscle.
+The result is a day-by-day plan drawn from a catalog of 36 movements. Each exercise opens a detail card with how to do it, the volume, the rest and the target muscle.
 
 | A generated week | Exercise detail |
 | :---: | :---: |
@@ -33,7 +33,7 @@ The result is a day-by-day plan drawn from a catalog of 38 movements. Each exerc
 
 The planner lives in [`src/lib/planner.ts`](src/lib/planner.ts) as one pure function, so the tests can run it with a fixed random source.
 
-- **Equipment filter.** Each focus area gets a pool of the movements your gear allows. Bodyweight work is always in the pool, so every area has something to do even with no equipment.
+- **Equipment filter.** Each focus area gets a pool of the movements your gear allows. A movement that needs two things, such as a band and a pull-up bar, is only offered when you own both. Bodyweight work is always in the pool, so every area has something to do even with no equipment.
 - **Spreading the week.** Focus areas rotate across the training days. Every area you chose gets at least one day; if there are more days than areas, the rotation repeats.
 - **Fitting the time.** A session holds about one exercise per 5 minutes (never fewer than 2), split evenly between the areas trained that day.
 - **Variety.** Each pool is shuffled once per plan and read in order, so an area that comes back later in the week gets fresh movements before any repeat.
@@ -63,16 +63,19 @@ npm run scan:secrets   # scan every tracked file for credential patterns
 
 Node 22 or newer.
 
+Before changing the catalog or the planner, read the [known pitfalls](docs/PITFALLS.md).
+
 ## Project layout
 
 ```
 src/
   App.tsx                 planner UI
   lib/planner.ts          plan-building logic (pure, unit-tested)
-  data/exercises.ts       exercise catalog (38 movements)
+  data/exercises.ts       exercise catalog (36 movements)
+  data/options.ts         the choices the form offers, shared by the form, catalog, planner and tests
   components/ui/          glass cards, buttons, flow-field background
 tests/                    planner and secret-scanner tests
-docs/                     README screenshots and the GitHub social preview
+docs/                     README screenshots, the GitHub social preview and the known-pitfalls log
 legacy/                   original single-file prototype and planning notes
 .githooks/                pre-commit secret scanner (installed by npm install)
 .github/                  CI workflow and Dependabot config

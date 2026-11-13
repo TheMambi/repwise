@@ -1,6 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import NeuralBackground from '@/components/ui/flow-field-background'
-import { exercisesData, type Exercise } from '@/data/exercises'
+import { exercisesData } from '@/data/exercises'
+import {
+  DAY_COUNTS,
+  EQUIPMENT,
+  FOCUS_AREAS,
+  SESSION_LENGTHS,
+  type DayCount,
+  type Equipment,
+  type FocusArea,
+  type Goal
+} from '@/data/options'
 import {
   Dumbbell,
   Clock,
@@ -14,19 +24,19 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PremiumButton, GlassCard, SelectionPill } from '@/components/ui/premium-ui'
-import { buildWeeklyPlan, BODYWEIGHT, type DayPlan, type Goal } from '@/lib/planner'
+import { buildWeeklyPlan, type DayPlan, type PlannedExercise } from '@/lib/planner'
 
 function App() {
   // Form State
   const [time, setTime] = useState(30);
   const [goal, setGoal] = useState<Goal>('growth');
-  const [daysPerWeek, setDaysPerWeek] = useState(3);
-  const [availableEquipment, setAvailableEquipment] = useState<string[]>([BODYWEIGHT]);
-  const [focusMuscles, setFocusMuscles] = useState<string[]>(['Push', 'Pull', 'Legs', 'Core']);
+  const [daysPerWeek, setDaysPerWeek] = useState<DayCount>(3);
+  const [availableEquipment, setAvailableEquipment] = useState<Equipment[]>([]);
+  const [focusMuscles, setFocusMuscles] = useState<FocusArea[]>([...FOCUS_AREAS]);
 
   // App State
   const [weeklyPlan, setWeeklyPlan] = useState<DayPlan[] | null>(null);
-  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+  const [selectedExercise, setSelectedExercise] = useState<PlannedExercise | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const modalOpen = isModalOpen && selectedExercise !== null;
@@ -48,26 +58,11 @@ function App() {
     };
   }, [modalOpen]);
 
-  const equipmentOptions = [
-    'None', 'Dumbbells', 'Pull-up Bar', 'Resistance Band', 'TRX', 'Bench'
-  ];
-
-  const muscleOptions = [
-    { label: 'Push', value: 'Push' },
-    { label: 'Pull', value: 'Pull' },
-    { label: 'Legs', value: 'Legs' },
-    { label: 'Core', value: 'Core' }
-  ];
-
-  const toggleEquipment = (eq: string) => {
-    setAvailableEquipment(prev => {
-      const next = prev.includes(eq) ? prev.filter(e => e !== eq) : [...prev, eq];
-      // Bodyweight is always available, so an empty selection means bodyweight only.
-      return next.length > 0 ? next : [BODYWEIGHT];
-    });
+  const toggleEquipment = (eq: Equipment) => {
+    setAvailableEquipment(prev => (prev.includes(eq) ? prev.filter(e => e !== eq) : [...prev, eq]));
   };
 
-  const toggleMuscle = (m: string) => {
+  const toggleMuscle = (m: FocusArea) => {
     setFocusMuscles(prev => {
       if (!prev.includes(m)) return [...prev, m];
       // A plan needs at least one focus area.
@@ -82,7 +77,7 @@ function App() {
       daysPerWeek,
       equipment: availableEquipment,
       // Keep the split in a fixed order regardless of the order pills were tapped.
-      focusMuscles: muscleOptions.map(m => m.value).filter(m => focusMuscles.includes(m)),
+      focusMuscles: FOCUS_AREAS.filter(m => focusMuscles.includes(m)),
     });
 
     setWeeklyPlan(plan);
@@ -122,7 +117,7 @@ function App() {
                     <Clock className="w-4 h-4" /> Time & Volume
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
-                    {[15, 30, 45, 60].map(m => (
+                    {SESSION_LENGTHS.map(m => (
                       <button
                         key={m}
                         type="button"
@@ -166,7 +161,7 @@ function App() {
                     <Calendar className="w-4 h-4" /> Days / Week
                   </h3>
                   <div className="flex justify-between gap-2">
-                    {[2, 3, 4, 5, 6].map(d => (
+                    {DAY_COUNTS.map(d => (
                       <button
                         key={d}
                         type="button"
@@ -191,15 +186,16 @@ function App() {
                     <Dumbbell className="w-4 h-4" /> Equipment
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {equipmentOptions.map(eq => (
+                    {EQUIPMENT.map(eq => (
                       <SelectionPill
                         key={eq}
-                        label={eq === 'None' ? 'Bodyweight' : eq}
+                        label={eq}
                         selected={availableEquipment.includes(eq)}
                         onClick={() => toggleEquipment(eq)}
                       />
                     ))}
                   </div>
+                  <p className="text-sm text-white/60">Bodyweight movements are always included.</p>
                 </section>
 
                 <section className="space-y-4">
@@ -207,12 +203,12 @@ function App() {
                     <Bolt className="w-4 h-4" /> Focus Areas
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {muscleOptions.map(m => (
+                    {FOCUS_AREAS.map(m => (
                       <SelectionPill
-                        key={m.value}
-                        label={m.label}
-                        selected={focusMuscles.includes(m.value)}
-                        onClick={() => toggleMuscle(m.value)}
+                        key={m}
+                        label={m}
+                        selected={focusMuscles.includes(m)}
+                        onClick={() => toggleMuscle(m)}
                       />
                     ))}
                   </div>
