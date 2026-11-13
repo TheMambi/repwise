@@ -1,6 +1,6 @@
 # Known pitfalls
 
-Read this before changing the catalog, the planner or the tests. Add a row when a fix teaches something that is not obvious from the code.
+Read this before changing the catalog, the planner, the tests or the exercise dialog. Add a row when a fix teaches something that is not obvious from the code.
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
@@ -11,3 +11,6 @@ Read this before changing the catalog, the planner or the tests. Add a row when 
 | Sessions come out much shorter than the length picked, and 45 and 60 minutes give the same day. | The pool for an area, gear and level is smaller than the session. Beginner bodyweight has one push movement and two each for pull and core. Moving spare time between a day's areas fixes almost none of these days. | The planner adds sets up to a limit, and every day carries its real length and a flag for when it is short, which the plan view shows. Only more catalog entries make those days longer, so check the thin pools before tuning the planner. |
 | A session takes longer than the length picked. | Session size was a flat 5 minutes an exercise, whatever the goal's sets and rest. | The time for an exercise is worked out from its prescription in `exerciseSeconds`. If you change sets, reps, holds or rest, the number of exercises per session follows, and the tests that state the time model in their own words will tell you if the two drift apart. |
 | The tests pass while plans are short, need missing gear or show holds as reps. | The combination test tried 4 of 64 gear sets and one goal, and its limits were loose enough to accept the faults. | `tests/planner.test.ts` now builds a plan for every setting the form can send and checks each promise exactly, using the lists in `src/data/options.ts`, so a new option joins the sweep by itself. A new promise belongs in `checkPlan`. To prove a check works, break the planner on purpose and watch it fail. |
+| A closed dialog shows on the page. | A display class such as `flex` on the `dialog` element outranks the browser's own rule that hides a closed dialog. | Give the dialog its layout with the `open:` variant (`open:flex`), so it applies only while the dialog is open. |
+| A click inside the exercise dialog closes it. | The browser reports a click on the backdrop as a click on the `dialog` element, and it reports a click on the dialog's own padding the same way. | The dialog has no padding and one child that fills it, and the click handler closes only when the target is the dialog itself. Keep padding and scrolling on the child. |
+| `outline-none` on an element stops working, or a focus ring is missing. | The focus ring is one `:focus-visible` rule in `src/index.css`. It sits in Tailwind's base layer so utility classes can still override it. Moved out of the layer, it beats `outline-none`. | Leave the rule inside `@layer base`. Do not add ring classes to single buttons. |

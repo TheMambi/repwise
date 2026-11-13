@@ -42,26 +42,29 @@ function App() {
   // App State
   const [weeklyPlan, setWeeklyPlan] = useState<DayPlan[] | null>(null);
   const [selectedExercise, setSelectedExercise] = useState<PlannedExercise | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const modalOpen = isModalOpen && selectedExercise !== null;
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const planHeadingRef = useRef<HTMLHeadingElement>(null);
+  const firstSettingRef = useRef<HTMLButtonElement>(null);
 
+  // showModal makes the browser keep focus inside the dialog, close it on Escape and hand focus back to the card.
   useEffect(() => {
-    if (!modalOpen) return;
-    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsModalOpen(false);
-    };
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    document.addEventListener('keydown', onKeyDown);
-    closeButtonRef.current?.focus();
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-      document.body.style.overflow = previousOverflow;
-      opener?.focus();
-    };
-  }, [modalOpen]);
+    const dialog = dialogRef.current;
+    if (selectedExercise && dialog && !dialog.open) dialog.showModal();
+  }, [selectedExercise]);
+
+  // Swapping the form and the plan removes the button that had focus, so focus is placed in the new view.
+  const planShown = weeklyPlan !== null;
+  const wasPlanShown = useRef(planShown);
+  useEffect(() => {
+    if (wasPlanShown.current === planShown) return;
+    wasPlanShown.current = planShown;
+    if (planShown) {
+      planHeadingRef.current?.focus({ preventScroll: true });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      firstSettingRef.current?.focus();
+    }
+  }, [planShown]);
 
   const toggleEquipment = (eq: Equipment) => {
     setAvailableEquipment(prev => (prev.includes(eq) ? prev.filter(e => e !== eq) : [...prev, eq]));
@@ -87,7 +90,6 @@ function App() {
     });
 
     setWeeklyPlan(plan);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -98,7 +100,7 @@ function App() {
         <div className="absolute inset-0 bg-gradient-to-tr from-[#050505] via-transparent to-[#050505] opacity-80" />
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 py-20">
+      <main className="relative z-10 max-w-6xl mx-auto px-6 py-20">
         {!weeklyPlan ? (
           <div className="flex flex-col items-center text-center space-y-16">
             {/* Hero Section */}
@@ -119,20 +121,21 @@ function App() {
             <GlassCard className="w-full max-w-4xl grid md:grid-cols-2 gap-12 text-left">
               <div className="space-y-10">
                 <section className="space-y-4">
-                  <h3 className="text-sm font-bold text-white/30 uppercase tracking-widest flex items-center gap-2">
+                  <h2 className="text-sm font-bold text-white/60 uppercase tracking-widest flex items-center gap-2">
                     <Clock className="w-4 h-4" /> Time & Volume
-                  </h3>
+                  </h2>
                   <div className="grid grid-cols-2 gap-3">
-                    {SESSION_LENGTHS.map(m => (
+                    {SESSION_LENGTHS.map((m, index) => (
                       <button
                         key={m}
+                        ref={index === 0 ? firstSettingRef : undefined}
                         type="button"
                         aria-pressed={time === m}
                         aria-label={`${m} minutes per session`}
                         onClick={() => setTime(m)}
                         className={cn(
                           "py-3 rounded-2xl border transition-all text-sm font-bold",
-                          time === m ? "bg-white text-black border-white" : "bg-white/5 border-white/10 text-white/40 hover:border-white/30"
+                          time === m ? "bg-white text-black border-white" : "bg-white/5 border-white/10 text-white/60 hover:border-white/30"
                         )}
                       >
                         {m}m
@@ -142,30 +145,30 @@ function App() {
                 </section>
 
                 <section className="space-y-4">
-                  <h3 className="text-sm font-bold text-white/30 uppercase tracking-widest flex items-center gap-2">
+                  <h2 className="text-sm font-bold text-white/60 uppercase tracking-widest flex items-center gap-2">
                     <Target className="w-4 h-4" /> Primary Goal
-                  </h3>
+                  </h2>
                   <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/10">
                     <button
                       type="button"
                       aria-pressed={goal === 'growth'}
                       onClick={() => setGoal('growth')}
-                      className={cn("flex-1 py-3 rounded-xl text-sm font-bold transition-all", goal === 'growth' ? "bg-white/10 text-white" : "text-white/40")}
+                      className={cn("flex-1 py-3 rounded-xl text-sm font-bold transition-all", goal === 'growth' ? "bg-white/10 text-white" : "text-white/60")}
                     >Growth</button>
                     <button
                       type="button"
                       aria-pressed={goal === 'definition'}
                       aria-label="Definition"
                       onClick={() => setGoal('definition')}
-                      className={cn("flex-1 py-3 rounded-xl text-sm font-bold transition-all", goal === 'definition' ? "bg-white/10 text-white" : "text-white/40")}
+                      className={cn("flex-1 py-3 rounded-xl text-sm font-bold transition-all", goal === 'definition' ? "bg-white/10 text-white" : "text-white/60")}
                     >Def</button>
                   </div>
                 </section>
 
                 <section className="space-y-4">
-                  <h3 className="text-sm font-bold text-white/30 uppercase tracking-widest flex items-center gap-2">
+                  <h2 className="text-sm font-bold text-white/60 uppercase tracking-widest flex items-center gap-2">
                     <Calendar className="w-4 h-4" /> Days / Week
-                  </h3>
+                  </h2>
                   <div className="flex justify-between gap-2">
                     {DAY_COUNTS.map(d => (
                       <button
@@ -176,7 +179,7 @@ function App() {
                         onClick={() => setDaysPerWeek(d)}
                         className={cn(
                           "w-10 h-10 rounded-full border transition-all flex items-center justify-center text-sm font-bold",
-                          daysPerWeek === d ? "bg-indigo-500 border-indigo-500" : "bg-white/5 border-white/10 text-white/40 hover:border-white/30"
+                          daysPerWeek === d ? "bg-indigo-600 border-indigo-600" : "bg-white/5 border-white/10 text-white/60 hover:border-white/30"
                         )}
                       >
                         {d}
@@ -188,9 +191,9 @@ function App() {
 
               <div className="space-y-10 border-l border-white/5 pl-0 md:pl-12">
                 <section className="space-y-4">
-                  <h3 className="text-sm font-bold text-white/30 uppercase tracking-widest flex items-center gap-2">
+                  <h2 className="text-sm font-bold text-white/60 uppercase tracking-widest flex items-center gap-2">
                     <Dumbbell className="w-4 h-4" /> Equipment
-                  </h3>
+                  </h2>
                   <div className="flex flex-wrap gap-2">
                     {EQUIPMENT.map(eq => (
                       <SelectionPill
@@ -205,9 +208,9 @@ function App() {
                 </section>
 
                 <section className="space-y-4">
-                  <h3 className="text-sm font-bold text-white/30 uppercase tracking-widest flex items-center gap-2">
+                  <h2 className="text-sm font-bold text-white/60 uppercase tracking-widest flex items-center gap-2">
                     <Bolt className="w-4 h-4" /> Focus Areas
-                  </h3>
+                  </h2>
                   <div className="flex flex-wrap gap-2">
                     {FOCUS_AREAS.map(m => (
                       <SelectionPill
@@ -221,9 +224,9 @@ function App() {
                 </section>
 
                 <section className="space-y-4">
-                  <h3 className="text-sm font-bold text-white/30 uppercase tracking-widest flex items-center gap-2">
+                  <h2 className="text-sm font-bold text-white/60 uppercase tracking-widest flex items-center gap-2">
                     <Gauge className="w-4 h-4" /> Level
-                  </h3>
+                  </h2>
                   <div className="flex flex-col sm:flex-row bg-white/5 p-1.5 rounded-2xl border border-white/10">
                     {LEVELS.map(l => (
                       <button
@@ -231,7 +234,7 @@ function App() {
                         type="button"
                         aria-pressed={level === l}
                         onClick={() => setLevel(l)}
-                        className={cn("flex-1 py-3 rounded-xl text-sm font-bold transition-all", level === l ? "bg-white/10 text-white" : "text-white/40")}
+                        className={cn("flex-1 py-3 rounded-xl text-sm font-bold transition-all", level === l ? "bg-white/10 text-white" : "text-white/60")}
                       >{l}</button>
                     ))}
                   </div>
@@ -245,10 +248,10 @@ function App() {
           </div>
         ) : (
           <div className="space-y-12 max-w-4xl mx-auto animate-in fade-in duration-700">
-            <header className="flex justify-between items-end pb-8 border-b border-white/10">
+            <header className="flex flex-wrap justify-between items-end gap-4 pb-8 border-b border-white/10">
               <div>
-                <h2 className="text-4xl font-black tracking-tight">Your Custom Regimen</h2>
-                <p className="text-white/40 mt-1">Generated based on your profile</p>
+                <h1 ref={planHeadingRef} tabIndex={-1} className="text-4xl font-black tracking-tight outline-none">Your Custom Regimen</h1>
+                <p className="text-white/60 mt-1">Generated based on your profile</p>
               </div>
               <PremiumButton variant="outline" onClick={() => setWeeklyPlan(null)} icon={RotateCcw} className="px-6 py-2 text-xs uppercase tracking-widest">
                 Reconfigure
@@ -263,7 +266,7 @@ function App() {
                       {idx + 1}
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold">{day.day} <span className="text-white/30 font-medium ml-2 text-lg">· {day.focus}</span></h3>
+                      <h2 className="text-2xl font-bold">{day.day} <span className="text-white/60 font-medium ml-2 text-lg">· {day.focus}</span></h2>
                       <p className="text-sm text-white/60 mt-1">{sessionLengthText(day, time)}</p>
                     </div>
                   </div>
@@ -272,12 +275,12 @@ function App() {
                       <button
                         key={ex.name}
                         type="button"
-                        onClick={() => { setSelectedExercise(ex); setIsModalOpen(true); }}
+                        onClick={() => setSelectedExercise(ex)}
                         className="p-4 bg-white/5 border border-white/10 rounded-2xl text-left hover:bg-white/10 hover:border-white/20 transition-all flex justify-between items-center group/item"
                       >
                         <div>
                           <p className="font-bold text-white/80 group-hover/item:text-white transition-colors">{ex.name} <span className="text-white/60 font-medium ml-2 text-sm">· {ex.difficulty}</span></p>
-                          <p className="text-xs text-white/40 mt-1 uppercase font-black tracking-widest">{volumeText(ex)} · {ex.rest} seconds rest</p>
+                          <p className="text-xs text-white/60 mt-1 uppercase font-black tracking-widest">{volumeText(ex)} · {ex.rest} seconds rest</p>
                         </div>
                         <ChevronRight className="w-4 h-4 text-white/20 group-hover/item:translate-x-1 group-hover/item:text-white transition-all" />
                       </button>
@@ -288,39 +291,44 @@ function App() {
             </div>
           </div>
         )}
-      </div>
+      </main>
 
       {/* Modal - Simplified & Premium */}
-      {modalOpen && selectedExercise && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-in fade-in transition-all" onClick={() => setIsModalOpen(false)}>
-          <div className="bg-[#111] border border-white/10 w-full max-w-xl rounded-[2.5rem] overflow-hidden shadow-[0_0_100px_rgba(139,92,246,0.15)] animate-in zoom-in-95 duration-300" role="dialog" aria-modal="true" aria-labelledby="exercise-title" onClick={e => e.stopPropagation()}>
-            <div className="p-10 space-y-8">
-              <div className="flex justify-between items-start">
-                <div className="space-y-4">
-                  <div className="text-xs font-black tracking-widest uppercase text-indigo-400">{selectedExercise.category}</div>
-                  <h2 id="exercise-title" className="text-4xl font-black tracking-tight">{selectedExercise.name}</h2>
-                </div>
-                <button ref={closeButtonRef} type="button" aria-label="Close exercise details" onClick={() => setIsModalOpen(false)} className="p-3 bg-white/5 hover:bg-white/10 rounded-full transition-all">
-                  <X className="w-5 h-5" />
-                </button>
+      <dialog
+        ref={dialogRef}
+        aria-labelledby="exercise-title"
+        onClose={() => setSelectedExercise(null)}
+        // A click on the backdrop arrives on the dialog itself. The content fills the dialog, so any other target is inside it.
+        onClick={e => { if (e.target === e.currentTarget) e.currentTarget.close(); }}
+        className="w-[calc(100%-3rem)] max-w-xl max-h-[calc(100%-3rem)] open:flex flex-col bg-[#111] text-white border border-white/10 rounded-[2.5rem] overflow-hidden shadow-[0_0_100px_rgba(139,92,246,0.15)] backdrop:bg-black/90 backdrop:backdrop-blur-xl"
+      >
+        {selectedExercise && (
+          <div className="p-6 sm:p-10 space-y-8 overflow-y-auto">
+            <div className="flex justify-between items-start">
+              <div className="space-y-4">
+                <div className="text-xs font-black tracking-widest uppercase text-indigo-400">{selectedExercise.category}</div>
+                <h2 id="exercise-title" className="text-3xl sm:text-4xl font-black tracking-tight">{selectedExercise.name}</h2>
               </div>
-
-              <div className="text-lg text-white/60 leading-relaxed italic border-l-2 border-indigo-500 pl-6">
-                "{selectedExercise.description}"
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-6 border-t border-white/5">
-                <div className="col-span-2"><p className="text-[10px] font-black uppercase text-white/20 tracking-widest mb-1">Volume</p><p className="text-xl font-bold">{volumeText(selectedExercise)}</p></div>
-                <div><p className="text-[10px] font-black uppercase text-white/20 tracking-widest mb-1">Rest</p><p className="text-xl font-bold">{selectedExercise.rest} seconds</p></div>
-                <div><p className="text-[10px] font-black uppercase text-white/20 tracking-widest mb-1">Target</p><p className="text-xl font-bold">{selectedExercise.primary_muscle}</p></div>
-                <div><p className="text-[10px] font-black uppercase text-white/20 tracking-widest mb-1">Level</p><p className="text-xl font-bold">{selectedExercise.difficulty}</p></div>
-              </div>
-
-              <PremiumButton onClick={() => setIsModalOpen(false)} className="w-full py-4 mt-4">Got it</PremiumButton>
+              <button type="button" aria-label="Close exercise details" onClick={() => dialogRef.current?.close()} className="p-3 bg-white/5 hover:bg-white/10 rounded-full transition-all">
+                <X className="w-5 h-5" />
+              </button>
             </div>
+
+            <div className="text-lg text-white/60 leading-relaxed italic border-l-2 border-indigo-500 pl-6">
+              "{selectedExercise.description}"
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-6 border-t border-white/5">
+              <div className="col-span-2"><p className="text-[10px] font-black uppercase text-white/70 tracking-widest mb-1">Volume</p><p className="text-xl font-bold">{volumeText(selectedExercise)}</p></div>
+              <div><p className="text-[10px] font-black uppercase text-white/70 tracking-widest mb-1">Rest</p><p className="text-xl font-bold">{selectedExercise.rest} seconds</p></div>
+              <div><p className="text-[10px] font-black uppercase text-white/70 tracking-widest mb-1">Target</p><p className="text-xl font-bold">{selectedExercise.primary_muscle}</p></div>
+              <div><p className="text-[10px] font-black uppercase text-white/70 tracking-widest mb-1">Level</p><p className="text-xl font-bold">{selectedExercise.difficulty}</p></div>
+            </div>
+
+            <PremiumButton onClick={() => dialogRef.current?.close()} className="w-full py-4 mt-4">Got it</PremiumButton>
           </div>
-        </div>
-      )}
+        )}
+      </dialog>
     </div>
   )
 }

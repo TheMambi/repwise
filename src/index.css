@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    /* One ring for every control reached from the keyboard. An outline also shows in forced-colors mode, where shadows do not. */
+    :focus-visible {
+        outline: 2px solid theme('colors.indigo.400');
+        outline-offset: 2px;
+    }
+
+    /* The page behind an open dialog must not scroll. */
+    html:has(dialog[open]) {
+        overflow: hidden;
+    }
+}
+
 :root {
     background-color: #050505;
     color: white;
