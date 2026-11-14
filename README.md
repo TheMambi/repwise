@@ -63,13 +63,13 @@ git clone https://github.com/TheMambi/repwise.git
 cd repwise
 npm install            # also switches on the pre-commit secret scanner and says so
 npm run dev            # http://localhost:5173
-npm test               # planner, page and secret-scanner tests
+npm test               # planner, page and secret-scanner tests (the scanner tests need Python 3)
 npm run lint
 npm run build && npm run preview
 npm run scan:secrets   # scan every tracked file for credential patterns
 ```
 
-Node 22.18 or newer. The tests run TypeScript files directly, which earlier releases of Node 22 cannot do.
+You need Node 22.18 or newer; `package.json` declares it. The tests run TypeScript files directly, which earlier releases of Node 22 cannot do. The secret scanner and its tests also need Python 3.8 or newer, found as `python3`, `python` or `py`. `npm run test:node` runs the planner and page tests without Python, and `npm run build` type-checks `src/` and `tests/`.
 
 Before changing the catalog or the planner, read the [known pitfalls](docs/PITFALLS.md).
 
