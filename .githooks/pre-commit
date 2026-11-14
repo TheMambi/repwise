@@ -1,3 +1,11 @@
 #!/bin/sh
-# Installed automatically by `npm install` (package.json "prepare" sets core.hooksPath to .githooks).
-exec python3 "$(git rev-parse --show-toplevel)/.githooks/scan-secrets.py"
+# Switched on by `npm install` (scripts/install-hooks.mjs); `npm run hooks:check` shows whether it is active.
+root="$(git rev-parse --show-toplevel)" || exit 1
+# A python.org install on Windows provides `python` and `py`, not `python3`.
+for python in python3 python "py -3"; do
+  if $python -c "import sys; sys.exit(sys.version_info < (3, 8))" >/dev/null 2>&1; then
+    exec $python "$root/.githooks/scan-secrets.py"
+  fi
+done
+echo "Secret scan needs Python 3.8 or newer and found none (tried python3, python and py -3). Commit blocked: install Python and try again." >&2
+exit 1

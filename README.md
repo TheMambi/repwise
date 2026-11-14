@@ -61,7 +61,7 @@ Design file: [Figma](https://www.figma.com/design/jAm3pPTMjnJMJoY95sDB3I)
 ```bash
 git clone https://github.com/TheMambi/repwise.git
 cd repwise
-npm install            # also installs the pre-commit secret scanner
+npm install            # also switches on the pre-commit secret scanner and says so
 npm run dev            # http://localhost:5173
 npm test               # planner and secret-scanner tests
 npm run lint
@@ -87,7 +87,8 @@ src/
 tests/                    planner and secret-scanner tests
 docs/                     README screenshots, the GitHub social preview and the known-pitfalls log
 legacy/                   original single-file prototype and planning notes
-.githooks/                pre-commit secret scanner (installed by npm install)
+.githooks/                pre-commit secret scanner (switched on by npm install)
+scripts/                  hook installer and the Python launcher the npm scripts use
 .github/                  CI workflow and Dependabot config
 vercel.json               security headers
 ```

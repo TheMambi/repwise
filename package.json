@@ -15,9 +15,11 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node --test tests/planner.test.ts && python3 -m unittest discover -s tests -p 'test_*.py'",
-    "prepare": "git config core.hooksPath .githooks || true",
-    "scan:secrets": "python3 .githooks/scan-secrets.py --all"
+    "pretest": "node scripts/install-hooks.mjs --check",
+    "test": "node --test tests/planner.test.ts tests/install-hooks.test.mjs && node scripts/python.mjs -m unittest discover -s tests -p \"test_*.py\"",
+    "prepare": "node scripts/install-hooks.mjs",
+    "hooks:check": "node scripts/install-hooks.mjs --check",
+    "scan:secrets": "node scripts/python.mjs .githooks/scan-secrets.py --all"
   },
   "dependencies": {
     "clsx": "^2.1.1",
