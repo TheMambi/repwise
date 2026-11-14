@@ -71,7 +71,7 @@ npm run scan:secrets   # scan every tracked file for credential patterns
 
 You need Node 22.18 or newer; `package.json` declares it. The tests run TypeScript files directly, which earlier releases of Node 22 cannot do. The secret scanner and its tests also need Python 3.8 or newer, found as `python3`, `python` or `py`. `npm run test:node` runs the planner and page tests without Python, and `npm run build` type-checks `src/` and `tests/`.
 
-Before changing the catalog or the planner, read the [known pitfalls](docs/PITFALLS.md).
+Before changing the catalog or the planner, read the [known pitfalls](docs/PITFALLS.md). Major dependency upgrades are done by hand and tracked in [docs/UPGRADES.md](docs/UPGRADES.md).
 
 ## Project layout
 
@@ -86,7 +86,7 @@ src/
   components/ui/          glass cards, buttons, flow-field background
 tests/                    planner, page and secret-scanner tests
 public/                   favicon, home screen icon and the link preview image
-docs/                     README screenshots and the known-pitfalls log
+docs/                     README screenshots, the known-pitfalls log and the list of major upgrades waiting
 .githooks/                pre-commit secret scanner (switched on by npm install)
 scripts/                  hook installer and the Python launcher the npm scripts use
 .github/                  CI workflow and Dependabot config
