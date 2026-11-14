@@ -86,7 +86,6 @@ src/
   components/ui/          glass cards, buttons, flow-field background
 tests/                    planner and secret-scanner tests
 docs/                     README screenshots, the GitHub social preview and the known-pitfalls log
-legacy/                   original single-file prototype and planning notes
 .githooks/                pre-commit secret scanner (switched on by npm install)
 scripts/                  hook installer and the Python launcher the npm scripts use
 .github/                  CI workflow and Dependabot config
