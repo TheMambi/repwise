@@ -95,7 +95,7 @@ vercel.json               security headers
 
 ## Security
 
-The site sends a strict Content-Security-Policy with no inline scripts or styles, refuses to be framed and forces HTTPS. CI scans the full Git history for secrets, runs `npm audit`, lint, tests and a production build on every push, and actions are pinned to commit hashes. See [SECURITY.md](SECURITY.md) for the details and for how to report a problem privately.
+The site sends a strict Content-Security-Policy with no inline scripts or styles, refuses to be framed and forces HTTPS. CI scans the full Git history for secrets on every push to any branch, runs `npm audit`, lint, tests and a production build on pushes to `main` and `dev` and on pull requests, and actions are pinned to commit hashes. See [SECURITY.md](SECURITY.md) for the details and for how to report a problem privately.
 
 ## License
 

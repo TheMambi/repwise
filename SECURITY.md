@@ -16,7 +16,7 @@ You can expect an acknowledgement within 7 days.
 
 ## Controls in place
 
-- Secret scanning on every push, pull request, manual run, and weekly schedule. After the event-specific scan, an explicit Gitleaks command scans all fetched reachable history, including merge changes (`.github/workflows/security.yml`).
+- Secret scanning on every push to any branch, pull request, manual run, and weekly schedule. After the event-specific scan, an explicit Gitleaks command scans all fetched reachable history, including merge changes (`.github/workflows/security.yml`).
 - A local pre-commit hook that blocks common credential patterns and secret-bearing files (`.githooks/`). `npm install` switches it on and prints one line saying whether it is active. See "The local hook" below for when it is not.
 - Dependabot for npm and GitHub Actions; CI fails on high-severity advisories.
 - Strict Content-Security-Policy (same-origin scripts and styles only, no inline code) and hardening headers served by Vercel (`vercel.json`).

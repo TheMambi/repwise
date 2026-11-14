@@ -2,7 +2,7 @@ name: Security & Build
 
 on:
   push:
-    branches: [main, dev]
+    branches: ['**'] # every branch, so the secret scan sees topic branches; the build job narrows itself below
   pull_request:
   workflow_dispatch:
   schedule:
@@ -36,6 +36,7 @@ jobs:
 
   build:
     name: Lint, audit, build
+    if: github.event_name != 'push' || github.ref_name == 'main' || github.ref_name == 'dev'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -48,5 +49,5 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm audit --audit-level=high
       - run: npm run lint
-      - run: node --test tests/planner.test.ts
+      - run: node --test tests/planner.test.ts tests/install-hooks.test.mjs
       - run: npm run build
