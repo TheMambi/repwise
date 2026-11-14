@@ -13,6 +13,8 @@ It mixes calisthenics and weight work, keeps each session inside your time budge
 
 Everything runs in your browser. There is no backend, no account, no analytics, and nothing you pick is stored or sent anywhere.
 
+A generated week has its own link. The settings and a random seed sit after the `#` in the address, a part browsers never send to a server, so a reload, a bookmark or a link sent to a training partner opens the same week. Back returns to the form with your settings still selected.
+
 ## What it does
 
 | Setting | Choices |
@@ -39,6 +41,7 @@ The planner lives in [`src/lib/planner.ts`](src/lib/planner.ts) as one pure func
 - **Level filter.** Each pool keeps only the movements at or below the level you chose. If an area has nothing that easy for your gear, its easiest movements stand in so the day is never empty, and every exercise shows its level.
 - **Fitting the time.** An exercise is timed from its own prescription: every set at the top of its range, 3 seconds a rep, plus the rest after each set. That comes to about 6 minutes for growth and 7 for definition, so a 30 minute session holds 4 exercises and a 60 minute one about 9 or 8. The exercises are dealt out one at a time between the areas trained that day, so an area that runs out of movements leaves its share to the others.
 - **Short days.** A small pool can run out before the session is full. The planner then adds sets, up to 5 per exercise, for as long as a whole extra round fits. If there is still room for another exercise after that, the day is marked as shorter than the length you picked. The lasting fix for a short day is more movements in the catalog.
+- **Links.** Launch Program draws a seed, shuffles with a generator that repeats for that seed, and writes the settings and the seed to the address ([`src/lib/plan-link.ts`](src/lib/plan-link.ts)). Opening the address rebuilds the week from them. A link that cannot be read opens the form. The link holds settings, not exercises, so a link made before a change to the catalog or the planner can open a different week afterwards.
 - **Variety.** Each pool is shuffled once per plan and read in order, so an area that comes back later in the week gets fresh movements before any repeat.
 
 ## Accessibility
@@ -77,6 +80,7 @@ src/
   App.tsx                 planner UI
   lib/planner.ts          plan-building logic (pure, unit-tested)
   lib/plan-text.ts        wording for sets, holds and session length
+  lib/plan-link.ts        the plan link in the address: write, read, rebuild
   data/exercises.ts       exercise catalog (36 movements)
   data/options.ts         the choices the form offers, shared by the form, catalog, planner and tests
   components/ui/          glass cards, buttons, flow-field background

@@ -2,8 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { exercisesData, type Exercise } from '../src/data/exercises.ts';
 import { DAY_COUNTS, EQUIPMENT, FOCUS_AREAS, GOALS, LEVELS, SESSION_LENGTHS } from '../src/data/options.ts';
+import { decodePlanLink, encodePlanLink, planFromLink } from '../src/lib/plan-link.ts';
 import { sessionLengthText, volumeText } from '../src/lib/plan-text.ts';
-import { buildWeeklyPlan, type DayPlan, type PlanOptions } from '../src/lib/planner.ts';
+import { buildWeeklyPlan, seeded, type DayPlan, type PlanOptions } from '../src/lib/planner.ts';
 
 const base: PlanOptions = {
   time: 30,
@@ -23,10 +24,6 @@ function estimatedSeconds(day: DayPlan) {
     (total, ex) => total + ex.sets * ((ex.unit === 'seconds' ? ex.perSet[1] : ex.perSet[1] * 3) + ex.rest),
     0,
   );
-}
-
-function seeded(seed: number) {
-  return () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296);
 }
 
 function dayOf(plan: DayPlan[], index: number): DayPlan {
@@ -348,4 +345,85 @@ test('a movement is only planned when every piece of gear it needs is owned', ()
     const dumbbells = buildWeeklyPlan(exercisesData, { ...base, equipment: ['Dumbbells'], focusMuscles: ['Legs'] }, seeded(seed));
     assert.ok(!dumbbells.some(day => day.exercises.some(ex => ex.name === 'Hip Thrust')), 'hip thrust needs a bench');
   }
+});
+
+// Plan links: the settings and the seed that a generated week writes into the page address.
+
+test('a plan link gives back the settings and seed it was made from', () => {
+  let seed = 0;
+  for (const options of everyFormInput()) {
+    // Step through the whole range of seeds, ends included.
+    seed = (seed + 2654435761) % 4294967296;
+    const link = encodePlanLink(options, seed);
+    assert.deepEqual(decodePlanLink(link), { options, seed }, link);
+  }
+  for (const edge of [0, 1, 4294967295]) assert.equal(decodePlanLink(encodePlanLink(base, edge))?.seed, edge);
+  assert.equal(
+    encodePlanLink({ ...base, equipment: ['Bench', 'Pull-up Bar'], focusMuscles: ['Legs', 'Push'] }, 7),
+    '#time=30&goal=growth&level=Beginner&days=3&gear=Pull-up+Bar&gear=Bench&focus=Push&focus=Legs&seed=7',
+    'gear and focus areas are written in the order the form lists them, whatever order they were tapped in',
+  );
+});
+
+test('the same link always rebuilds the same week', () => {
+  const options: PlanOptions = { ...wellEquipped, time: 45, daysPerWeek: 4 };
+  const link = encodePlanLink(options, 123456789);
+  const opened = planFromLink(exercisesData, link);
+  assert.ok(opened, 'the link should open');
+  assert.deepEqual(opened.days, buildWeeklyPlan(exercisesData, options, seeded(123456789)), 'the week shown at launch');
+  assert.deepEqual(planFromLink(exercisesData, link), opened, 'the week after a reload');
+  assert.deepEqual(opened.options, options);
+  const names = (days: DayPlan[] | undefined) => days?.flatMap(day => day.exercises.map(ex => ex.name));
+  const other = planFromLink(exercisesData, encodePlanLink(options, 987654321));
+  assert.notDeepEqual(names(other?.days), names(opened.days), 'another seed should give another week');
+});
+
+test('a link that cannot be read opens the form instead of a plan', () => {
+  const good = encodePlanLink({ ...base, equipment: ['Dumbbells'] }, 42);
+  assert.ok(planFromLink(exercisesData, good));
+  const damaged = [
+    '',
+    '#',
+    '#plan',
+    '#time=30',
+    '#%E0%A4%A',
+    good.slice(0, -8),
+    good.replace('time=30', 'time=31'),
+    good.replace('time=30', 'time=030'),
+    good.replace('time=30', 'time=-30'),
+    good.replace('time=30&', ''),
+    good.replace('goal=growth', 'goal=strength'),
+    good.replace('goal=growth', 'goal=constructor'),
+    good.replace('level=Beginner', 'level=beginner'),
+    good.replace('days=3', 'days=7'),
+    good.replace('days=3', 'days=3.0'),
+    good.replace('gear=Dumbbells', 'gear=Kettlebell'),
+    good.replace('gear=Dumbbells', 'gear=Dumbbells&gear=__proto__'),
+    good.replace('focus=Push&', 'focus=Arms&'),
+    good.replace(/focus=\w+&/g, ''),
+    good.replace('seed=42', 'seed='),
+    good.replace('seed=42', 'seed=-1'),
+    good.replace('seed=42', 'seed=4.2'),
+    good.replace('seed=42', 'seed=1e3'),
+    good.replace('seed=42', 'seed=4294967296'),
+    good.replace('seed=42', 'seed=abc'),
+    good.replace('&seed=42', ''),
+  ];
+  for (const link of damaged) {
+    assert.equal(decodePlanLink(link), null, link);
+    assert.equal(planFromLink(exercisesData, link), null, link);
+  }
+  // Repeats and a different order are harmless: the link is read as the form would have sent it.
+  const shuffled = '#seed=42&focus=Core&focus=Push&focus=Core&gear=Bench&gear=Dumbbells&gear=Bench&days=3&level=Beginner&goal=growth&time=30';
+  assert.deepEqual(decodePlanLink(shuffled), {
+    options: { ...base, equipment: ['Dumbbells', 'Bench'], focusMuscles: ['Push', 'Core'] },
+    seed: 42,
+  });
+});
+
+test('a readable link the planner turns down opens the form instead of failing', () => {
+  const link = encodePlanLink(base, 42);
+  const noCore = exercisesData.filter(ex => ex.category !== 'Core');
+  assert.throws(() => buildWeeklyPlan(noCore, base, seeded(42)), RangeError);
+  assert.equal(planFromLink(noCore, link), null);
 });

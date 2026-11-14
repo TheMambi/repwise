@@ -28,7 +28,8 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PremiumButton, GlassCard, SelectionPill } from '@/components/ui/premium-ui'
-import { buildWeeklyPlan, type DayPlan, type PlannedExercise } from '@/lib/planner'
+import { buildWeeklyPlan, seeded, type DayPlan, type PlanOptions, type PlannedExercise } from '@/lib/planner'
+import { encodePlanLink, planFromLink } from '@/lib/plan-link'
 import { sessionLengthText, volumeText } from '@/lib/plan-text'
 
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
@@ -40,16 +41,19 @@ function subscribeToReducedMotion(onChange: () => void) {
 }
 
 function App() {
+  // A plan link in the address is read before the first render, so a reload opens straight onto the same week.
+  const [linked] = useState(() => planFromLink(exercisesData, window.location.hash));
+
   // Form State
-  const [time, setTime] = useState(30);
-  const [goal, setGoal] = useState<Goal>('growth');
-  const [level, setLevel] = useState<Level>('Beginner');
-  const [daysPerWeek, setDaysPerWeek] = useState<DayCount>(3);
-  const [availableEquipment, setAvailableEquipment] = useState<Equipment[]>([]);
-  const [focusMuscles, setFocusMuscles] = useState<FocusArea[]>([...FOCUS_AREAS]);
+  const [time, setTime] = useState(linked?.options.time ?? 30);
+  const [goal, setGoal] = useState<Goal>(linked?.options.goal ?? 'growth');
+  const [level, setLevel] = useState<Level>(linked?.options.level ?? 'Beginner');
+  const [daysPerWeek, setDaysPerWeek] = useState<DayCount>(linked?.options.daysPerWeek ?? 3);
+  const [availableEquipment, setAvailableEquipment] = useState<Equipment[]>([...(linked?.options.equipment ?? [])]);
+  const [focusMuscles, setFocusMuscles] = useState<FocusArea[]>([...(linked?.options.focusMuscles ?? FOCUS_AREAS)]);
 
   // App State
-  const [weeklyPlan, setWeeklyPlan] = useState<DayPlan[] | null>(null);
+  const [weeklyPlan, setWeeklyPlan] = useState<DayPlan[] | null>(linked?.days ?? null);
   const [selectedExercise, setSelectedExercise] = useState<PlannedExercise | null>(null);
   const [backgroundPaused, setBackgroundPaused] = useState(false);
   const reducedMotion = useSyncExternalStore(subscribeToReducedMotion, () => window.matchMedia(REDUCED_MOTION).matches);
@@ -77,6 +81,25 @@ function App() {
     }
   }, [planShown, reducedMotion]);
 
+  // Back, Forward and an edited address change the link without loading the page again.
+  useEffect(() => {
+    const showLinkedPlan = () => {
+      const linked = planFromLink(exercisesData, window.location.hash);
+      if (linked) {
+        setTime(linked.options.time);
+        setGoal(linked.options.goal);
+        setLevel(linked.options.level);
+        setDaysPerWeek(linked.options.daysPerWeek);
+        setAvailableEquipment([...linked.options.equipment]);
+        setFocusMuscles([...linked.options.focusMuscles]);
+      }
+      setWeeklyPlan(linked?.days ?? null);
+      dialogRef.current?.close();
+    };
+    window.addEventListener('hashchange', showLinkedPlan);
+    return () => window.removeEventListener('hashchange', showLinkedPlan);
+  }, []);
+
   const toggleEquipment = (eq: Equipment) => {
     setAvailableEquipment(prev => (prev.includes(eq) ? prev.filter(e => e !== eq) : [...prev, eq]));
   };
@@ -90,7 +113,7 @@ function App() {
   };
 
   const generatePlan = () => {
-    const plan = buildWeeklyPlan(exercisesData, {
+    const options: PlanOptions = {
       time,
       goal,
       level,
@@ -98,9 +121,20 @@ function App() {
       equipment: availableEquipment,
       // Keep the split in a fixed order regardless of the order pills were tapped.
       focusMuscles: FOCUS_AREAS.filter(m => focusMuscles.includes(m)),
-    });
+    };
+    const seed = Math.floor(Math.random() * 4294967296);
+    const plan = buildWeeklyPlan(exercisesData, options, seeded(seed));
 
+    // The settings and the seed go into the address as a new history entry. A reload or a shared link
+    // rebuilds this week from them, and Back returns to the form.
+    window.history.pushState(null, '', encodePlanLink(options, seed));
     setWeeklyPlan(plan);
+  };
+
+  const reconfigure = () => {
+    // A new entry without the link, so Back from the form returns to this plan.
+    window.history.pushState(null, '', window.location.pathname + window.location.search);
+    setWeeklyPlan(null);
   };
 
   return (
@@ -281,7 +315,7 @@ function App() {
                 <h1 ref={planHeadingRef} tabIndex={-1} className="text-4xl font-black tracking-tight outline-none">Your Custom Regimen</h1>
                 <p className="text-white/60 mt-1">Generated based on your profile</p>
               </div>
-              <PremiumButton variant="outline" onClick={() => setWeeklyPlan(null)} icon={RotateCcw} className="px-6 py-2 text-xs uppercase tracking-widest">
+              <PremiumButton variant="outline" onClick={reconfigure} icon={RotateCcw} className="px-6 py-2 text-xs uppercase tracking-widest">
                 Reconfigure
               </PremiumButton>
             </header>

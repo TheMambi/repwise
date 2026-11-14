@@ -71,6 +71,12 @@ function shuffle<T>(items: readonly T[], random: () => number): T[] {
   return result;
 }
 
+// A stand-in for Math.random that repeats: the same seed gives the same numbers, so the same week.
+// The seed must be a whole number from 0 to 4294967295.
+export function seeded(seed: number): () => number {
+  return () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296);
+}
+
 function requireOption<T>(name: string, value: T, allowed: readonly T[]): void {
   if (!allowed.includes(value)) {
     throw new RangeError(`${name} must be one of ${allowed.join(', ')}, got ${String(value)}`);
