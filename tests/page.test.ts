@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { exercisesData } from '../src/data/exercises.ts';
 import { volumeLabel } from '../src/lib/plan-text.ts';
 
@@ -58,4 +58,39 @@ test('the page takes its address from package.json instead of repeating it', () 
   const { homepage } = JSON.parse(read('../package.json')) as { homepage: string };
   assert.ok(!html.includes(homepage), 'index.html spells out the site address');
   assert.ok(html.includes('%VITE_SITE_URL%'));
+});
+
+test('the app links to its source and licence, and every link that leaves the site is opened safely', () => {
+  const app = read('../src/App.tsx');
+  const links = app.match(/<a\s[^>]*>/g) ?? [];
+  assert.ok(links.length >= 2, 'expected a source link and a licence link');
+  for (const link of links) {
+    assert.ok(link.includes('target="_blank"') && link.includes('rel="noopener noreferrer"'), link);
+  }
+  assert.ok(app.includes('import.meta.env.VITE_SOURCE_URL'), 'the source link is not built from package.json');
+
+  // The repository address is written once, in package.json.
+  for (const file of ['../src/App.tsx', '../index.html', '../vite.config.ts']) {
+    assert.doesNotMatch(read(file), /github\.com/, `${file} spells out the repository address`);
+  }
+});
+
+test('THIRD_PARTY.md says where every data and component file came from and names every bundled package', () => {
+  const notes = read('../THIRD_PARTY.md');
+  for (const folder of ['src/data', 'src/components/ui']) {
+    for (const file of readdirSync(new URL(`../${folder}`, import.meta.url))) {
+      assert.ok(notes.includes(`${folder}/${file}`), `${folder}/${file} has no provenance line`);
+    }
+  }
+  const { dependencies } = JSON.parse(read('../package.json')) as { dependencies: Record<string, string> };
+  for (const name of Object.keys(dependencies)) {
+    assert.ok(notes.includes(`| ${name} |`), `${name} is bundled but not listed`);
+  }
+});
+
+test('the README says where the MIT releases end and the AGPL ones begin', () => {
+  const licence = read('../README.md').split('## License')[1] ?? '';
+  assert.match(licence, /MIT/);
+  assert.match(licence, /c749d2c/);
+  assert.match(licence, /f3b1d5c/);
 });

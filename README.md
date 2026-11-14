@@ -52,7 +52,7 @@ The animated background has a pause button. It also rests while the tab is hidde
 
 ## Tech
 
-React 19, TypeScript, Vite 6, Tailwind CSS 3 and lucide-react. The background is a canvas flow field written for this app. Tests use Node's built-in test runner. Deployed as a static site on Vercel.
+React 19, TypeScript, Vite 6, Tailwind CSS 3 and lucide-react. The background is a canvas flow field. Tests use Node's built-in test runner. Deployed as a static site on Vercel.
 
 Design file: [Figma](https://www.figma.com/design/jAm3pPTMjnJMJoY95sDB3I)
 
@@ -91,6 +91,7 @@ docs/                     README screenshots and the known-pitfalls log
 scripts/                  hook installer and the Python launcher the npm scripts use
 .github/                  CI workflow and Dependabot config
 vercel.json               security headers
+THIRD_PARTY.md            where the catalog and components came from, and the bundled packages' licences
 ```
 
 ## Security
@@ -99,4 +100,8 @@ The site sends a strict Content-Security-Policy with no inline scripts or styles
 
 ## License
 
-Copyright (C) 2026 The Mambí. This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. See `LICENSE` for the full text.
+Copyright (C) 2026 The Mambí. This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. See `LICENSE` for the full text. The app's footer links to the licence and to this repository, and a copy you run for other people has to keep a link to its own source.
+
+The project was first published under the MIT License. Every commit before `f3b1d5c` (12 November 2026) was released under MIT, and that grant still stands for those versions; the last of them on `dev` is `c749d2c`. Everything from `f3b1d5c` on is AGPL-3.0-or-later.
+
+[THIRD_PARTY.md](THIRD_PARTY.md) records where the exercise catalog and the interface components came from and lists the packages that ship in the built site with their licences.

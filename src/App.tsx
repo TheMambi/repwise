@@ -33,6 +33,7 @@ import { encodePlanLink, planFromLink } from '@/lib/plan-link'
 import { sessionLengthText, volumeLabel, volumeText } from '@/lib/plan-text'
 
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
+const SOURCE_URL = import.meta.env.VITE_SOURCE_URL;
 
 function subscribeToReducedMotion(onChange: () => void) {
   const query = window.matchMedia(REDUCED_MOTION);
@@ -353,6 +354,14 @@ function App() {
           </div>
         )}
       </main>
+
+      <footer className="relative z-10 max-w-6xl mx-auto px-6 pb-12 text-center text-sm text-white/60">
+        <p>
+          Repwise is free software under the{' '}
+          <a href={`${SOURCE_URL}/blob/HEAD/LICENSE`} target="_blank" rel="noopener noreferrer" className="underline hover:text-white transition-colors">GNU Affero General Public License</a>, version 3 or later.{' '}
+          <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer" className="underline hover:text-white transition-colors">Get the source code</a>.
+        </p>
+      </footer>
 
       {/* Modal - Simplified & Premium */}
       <dialog
