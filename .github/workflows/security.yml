@@ -49,5 +49,5 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm audit --audit-level=high
       - run: npm run lint
-      - run: node --test tests/planner.test.ts tests/install-hooks.test.mjs
+      - run: node --test tests/planner.test.ts tests/page.test.ts tests/install-hooks.test.mjs
       - run: npm run build

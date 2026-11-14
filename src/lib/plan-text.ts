@@ -6,6 +6,11 @@ export function volumeText(ex: PlannedExercise): string {
   return `${ex.sets} sets of ${ex.perSet[0]} to ${ex.perSet[1]} ${ex.unit}`;
 }
 
+// A hold has no reps, so the heading over that line follows the exercise's unit.
+export function volumeLabel(ex: PlannedExercise): string {
+  return ex.unit === 'seconds' ? 'Sets and holds' : 'Sets and reps';
+}
+
 export function sessionLengthText(day: DayPlan, picked: number): string {
   const length = `About ${day.minutes} minutes`;
   if (!day.short) return length;

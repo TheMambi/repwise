@@ -30,7 +30,7 @@ import { cn } from '@/lib/utils'
 import { PremiumButton, GlassCard, SelectionPill } from '@/components/ui/premium-ui'
 import { buildWeeklyPlan, seeded, type DayPlan, type PlanOptions, type PlannedExercise } from '@/lib/planner'
 import { encodePlanLink, planFromLink } from '@/lib/plan-link'
-import { sessionLengthText, volumeText } from '@/lib/plan-text'
+import { sessionLengthText, volumeLabel, volumeText } from '@/lib/plan-text'
 
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
 
@@ -184,7 +184,7 @@ function App() {
               <div className="space-y-10">
                 <section className="space-y-4">
                   <h2 className="text-sm font-bold text-white/60 uppercase tracking-widest flex items-center gap-2">
-                    <Clock className="w-4 h-4" /> Time & Volume
+                    <Clock className="w-4 h-4" /> Session length
                   </h2>
                   <div className="grid grid-cols-2 gap-3">
                     {SESSION_LENGTHS.map((m, index) => (
@@ -200,7 +200,7 @@ function App() {
                           time === m ? "bg-white text-black border-white" : "bg-white/5 border-white/10 text-white/60 hover:border-white/30"
                         )}
                       >
-                        {m}m
+                        {m} min
                       </button>
                     ))}
                   </div>
@@ -220,16 +220,15 @@ function App() {
                     <button
                       type="button"
                       aria-pressed={goal === 'definition'}
-                      aria-label="Definition"
                       onClick={() => setGoal('definition')}
                       className={cn("flex-1 py-3 rounded-xl text-sm font-bold transition-all", goal === 'definition' ? "bg-white/10 text-white" : "text-white/60")}
-                    >Def</button>
+                    >Definition</button>
                   </div>
                 </section>
 
                 <section className="space-y-4">
                   <h2 className="text-sm font-bold text-white/60 uppercase tracking-widest flex items-center gap-2">
-                    <Calendar className="w-4 h-4" /> Days / Week
+                    <Calendar className="w-4 h-4" /> Days per week
                   </h2>
                   <div className="flex justify-between gap-2">
                     {DAY_COUNTS.map(d => (
@@ -304,7 +303,7 @@ function App() {
               </div>
             </GlassCard>
 
-            <PremiumButton onClick={generatePlan} icon={Bolt} className="text-xl px-12 py-5">
+            <PremiumButton onClick={generatePlan} icon={Bolt} size="xl">
               Launch Program
             </PremiumButton>
           </div>
@@ -315,7 +314,7 @@ function App() {
                 <h1 ref={planHeadingRef} tabIndex={-1} className="text-4xl font-black tracking-tight outline-none">Your Custom Regimen</h1>
                 <p className="text-white/60 mt-1">Generated based on your profile</p>
               </div>
-              <PremiumButton variant="outline" onClick={reconfigure} icon={RotateCcw} className="px-6 py-2 text-xs uppercase tracking-widest">
+              <PremiumButton variant="outline" onClick={reconfigure} icon={RotateCcw} size="sm" className="uppercase tracking-widest">
                 Reconfigure
               </PremiumButton>
             </header>
@@ -342,7 +341,7 @@ function App() {
                       >
                         <div>
                           <p className="font-bold text-white/80 group-hover/item:text-white transition-colors">{ex.name} <span className="text-white/60 font-medium ml-2 text-sm">· {ex.difficulty}</span></p>
-                          <p className="text-xs text-white/60 mt-1 uppercase font-black tracking-widest">{volumeText(ex)} · {ex.rest} seconds rest</p>
+                          <p className="text-xs text-white/60 mt-1 font-bold">{volumeText(ex)} · rest {ex.rest} seconds</p>
                         </div>
                         <ChevronRight className="w-4 h-4 text-white/20 group-hover/item:translate-x-1 group-hover/item:text-white transition-all" />
                       </button>
@@ -381,13 +380,13 @@ function App() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-6 border-t border-white/5">
-              <div className="col-span-2"><p className="text-[10px] font-black uppercase text-white/70 tracking-widest mb-1">Volume</p><p className="text-xl font-bold">{volumeText(selectedExercise)}</p></div>
+              <div className="col-span-2"><p className="text-[10px] font-black uppercase text-white/70 tracking-widest mb-1">{volumeLabel(selectedExercise)}</p><p className="text-xl font-bold">{volumeText(selectedExercise)}</p></div>
               <div><p className="text-[10px] font-black uppercase text-white/70 tracking-widest mb-1">Rest</p><p className="text-xl font-bold">{selectedExercise.rest} seconds</p></div>
               <div><p className="text-[10px] font-black uppercase text-white/70 tracking-widest mb-1">Target</p><p className="text-xl font-bold">{selectedExercise.primary_muscle}</p></div>
               <div><p className="text-[10px] font-black uppercase text-white/70 tracking-widest mb-1">Level</p><p className="text-xl font-bold">{selectedExercise.difficulty}</p></div>
             </div>
 
-            <PremiumButton onClick={() => dialogRef.current?.close()} className="w-full py-4 mt-4">Got it</PremiumButton>
+            <PremiumButton onClick={() => dialogRef.current?.close()} size="lg" className="w-full mt-4">Got it</PremiumButton>
           </div>
         )}
       </dialog>

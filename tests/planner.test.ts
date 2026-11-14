@@ -340,8 +340,8 @@ test('a movement is only planned when every piece of gear it needs is owned', ()
   for (let seed = 1; seed <= 200; seed++) {
     const band = buildWeeklyPlan(exercisesData, { ...base, equipment: ['Resistance Band'], focusMuscles: ['Pull'] }, seeded(seed));
     const bandNames = band.flatMap(day => day.exercises.map(ex => ex.name));
-    assert.ok(!bandNames.includes('Resistance Band Pull-Ups'), 'band pull-ups need a pull-up bar');
-    assert.ok(!bandNames.includes('Resistance Band Chin-Ups'), 'band chin-ups need a pull-up bar');
+    assert.ok(!bandNames.includes('Resistance Band Pull-up'), 'band pull-ups need a pull-up bar');
+    assert.ok(!bandNames.includes('Resistance Band Chin-up'), 'band chin-ups need a pull-up bar');
     const dumbbells = buildWeeklyPlan(exercisesData, { ...base, equipment: ['Dumbbells'], focusMuscles: ['Legs'] }, seeded(seed));
     assert.ok(!dumbbells.some(day => day.exercises.some(ex => ex.name === 'Hip Thrust')), 'hip thrust needs a bench');
   }

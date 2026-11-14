@@ -26,11 +26,11 @@ A generated week has its own link. The settings and a random seed sit after the 
 | **Equipment** | Dumbbells, pull-up bar, resistance band, TRX, bench. Bodyweight movements are always included |
 | **Focus areas** | Push, pull, legs, core |
 
-The result is a day-by-day plan drawn from a catalog of 36 movements. Each exercise opens a detail card with how to do it, the volume, the rest, the target muscle and the level.
+The result is a day-by-day plan drawn from a catalog of 36 movements. Each exercise opens a detail card with how to do it, the sets and reps, the rest, the target muscle and the level.
 
 | A generated week | Exercise detail |
 | :---: | :---: |
-| <img src="docs/screenshots/plan.png" alt="A four-day plan with Monday push day and Tuesday pull day. Each day shows its estimated length and each exercise its level, sets, reps and rest" width="520"> | <img src="docs/screenshots/exercise.png" alt="Dumbbell Bench Press detail card with form notes, volume, rest, target muscle and level" width="340"> |
+| <img src="docs/screenshots/plan.png" alt="A four-day plan with Monday push day and Tuesday pull day. Each day shows its estimated length and each exercise its level, sets, reps and rest" width="520"> | <img src="docs/screenshots/exercise.png" alt="Dumbbell Bench Press detail card with form notes, sets and reps, rest, target muscle and level" width="340"> |
 
 ## How it works
 
@@ -63,13 +63,13 @@ git clone https://github.com/TheMambi/repwise.git
 cd repwise
 npm install            # also switches on the pre-commit secret scanner and says so
 npm run dev            # http://localhost:5173
-npm test               # planner and secret-scanner tests
+npm test               # planner, page and secret-scanner tests
 npm run lint
 npm run build && npm run preview
 npm run scan:secrets   # scan every tracked file for credential patterns
 ```
 
-Node 22 or newer.
+Node 22.18 or newer. The tests run TypeScript files directly, which earlier releases of Node 22 cannot do.
 
 Before changing the catalog or the planner, read the [known pitfalls](docs/PITFALLS.md).
 
@@ -84,8 +84,9 @@ src/
   data/exercises.ts       exercise catalog (36 movements)
   data/options.ts         the choices the form offers, shared by the form, catalog, planner and tests
   components/ui/          glass cards, buttons, flow-field background
-tests/                    planner and secret-scanner tests
-docs/                     README screenshots, the GitHub social preview and the known-pitfalls log
+tests/                    planner, page and secret-scanner tests
+public/                   favicon, home screen icon and the link preview image
+docs/                     README screenshots and the known-pitfalls log
 .githooks/                pre-commit secret scanner (switched on by npm install)
 scripts/                  hook installer and the Python launcher the npm scripts use
 .github/                  CI workflow and Dependabot config

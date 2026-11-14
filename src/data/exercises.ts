@@ -16,7 +16,7 @@ export interface Exercise {
 
 export const exercisesData: Exercise[] = [
     {
-        "name": "Resistance Band Pull-Ups",
+        "name": "Resistance Band Pull-up",
         "category": "Pull",
         "equipment": ["Resistance Band", "Pull-up Bar"],
         "primary_muscle": "Back",
@@ -25,7 +25,7 @@ export const exercisesData: Exercise[] = [
         "description": "Loop a resistance band around the bar, place your knees or feet in the loop, and pull yourself up until your head crosses the bar level."
     },
     {
-        "name": "Resistance Band Chin-Ups",
+        "name": "Resistance Band Chin-up",
         "category": "Pull",
         "equipment": ["Resistance Band", "Pull-up Bar"],
         "primary_muscle": "Back",
@@ -40,7 +40,7 @@ export const exercisesData: Exercise[] = [
         "primary_muscle": "Back",
         "difficulty": "Beginner",
         "unit": "reps",
-        "description": "Loop a band around a sturdy anchor at waist level, facing it, and pull the expander toward your waist."
+        "description": "Loop a band around a sturdy anchor at waist level, facing it, and pull the band toward your waist."
     },
     {
         "name": "Resistance Band Triceps Extension",
@@ -49,7 +49,7 @@ export const exercisesData: Exercise[] = [
         "primary_muscle": "Triceps",
         "difficulty": "Beginner",
         "unit": "reps",
-        "description": "Grab a hanging expander with both hands, and stretch your arms at the elbows by activating the triceps."
+        "description": "Grab a hanging band with both hands, and stretch your arms at the elbows by activating the triceps."
     },
     {
         "name": "Resistance Band Standing Pull-Over",
@@ -58,10 +58,10 @@ export const exercisesData: Exercise[] = [
         "primary_muscle": "Back",
         "difficulty": "Beginner",
         "unit": "reps",
-        "description": "Stand away from the anchor, lean slightly forward, and pull the expander arms close to your body."
+        "description": "Stand away from the anchor, lean slightly forward, and pull the ends of the band close to your body."
     },
     {
-        "name": "Resistance Band Biceps Curls",
+        "name": "Resistance Band Biceps Curl",
         "category": "Pull",
         "equipment": ["Resistance Band"],
         "primary_muscle": "Biceps",
@@ -70,7 +70,7 @@ export const exercisesData: Exercise[] = [
         "description": "Grab the band with an underhand grip and pull it toward your shoulder while keeping your elbow stationary."
     },
     {
-        "name": "Band-Assisted Push-Ups",
+        "name": "Band-Assisted Push-up",
         "category": "Push",
         "equipment": ["Resistance Band"],
         "primary_muscle": "Chest",
@@ -112,7 +112,7 @@ export const exercisesData: Exercise[] = [
         "primary_muscle": "Lats",
         "difficulty": "Advanced",
         "unit": "reps",
-        "description": "Pull your body up explosively from a hang, transition over the bar into a diet position, and push yourself up."
+        "description": "Pull your body up explosively from a hang, transition over the bar into a dip position, and push yourself up."
     },
     {
         "name": "Handstand",
@@ -178,7 +178,7 @@ export const exercisesData: Exercise[] = [
         "description": "Stand facing the anchor, lean back with straight arms, and pull yourself back up with your elbows low."
     },
     {
-        "name": "Bicep Curl",
+        "name": "Biceps Curl",
         "category": "Pull",
         "equipment": ["Dumbbells"],
         "primary_muscle": "Biceps",

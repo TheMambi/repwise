@@ -6,12 +6,14 @@ export const PremiumButton = ({
     onClick,
     className,
     variant = 'primary',
+    size = 'md',
     icon: Icon
 }: {
     children: React.ReactNode,
     onClick?: () => void,
     className?: string,
     variant?: 'primary' | 'outline',
+    size?: 'sm' | 'md' | 'lg' | 'xl',
     icon?: React.ElementType
 }) => {
     const variants = {
@@ -19,13 +21,22 @@ export const PremiumButton = ({
         outline: "bg-transparent text-white border border-white/20 hover:border-white/40"
     }
 
+    // Padding and text size are picked here because `cn` joins class names without settling conflicts between them.
+    const sizes = {
+        sm: "px-6 py-2 text-xs",
+        md: "px-8 py-3",
+        lg: "px-8 py-4",
+        xl: "px-12 py-5 text-xl"
+    }
+
     return (
         <button
             type="button"
             onClick={onClick}
             className={cn(
-                "px-8 py-3 rounded-full font-bold transition-all transform active:scale-95 flex items-center justify-center gap-2",
+                "rounded-full font-bold transition-all transform active:scale-95 flex items-center justify-center gap-2",
                 variants[variant],
+                sizes[size],
                 className
             )}
         >

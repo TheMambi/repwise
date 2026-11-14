@@ -16,7 +16,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "pretest": "node scripts/install-hooks.mjs --check",
-    "test": "node --test tests/planner.test.ts tests/install-hooks.test.mjs && node scripts/python.mjs -m unittest discover -s tests -p \"test_*.py\"",
+    "test": "node --test tests/planner.test.ts tests/page.test.ts tests/install-hooks.test.mjs && node scripts/python.mjs -m unittest discover -s tests -p \"test_*.py\"",
     "prepare": "node scripts/install-hooks.mjs",
     "hooks:check": "node scripts/install-hooks.mjs --check",
     "scan:secrets": "node scripts/python.mjs .githooks/scan-secrets.py --all"
@@ -25,8 +25,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.577.0",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0",
-    "tailwind-merge": "^3.7.0"
+    "react-dom": "^19.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
